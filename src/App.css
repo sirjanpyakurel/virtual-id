@@ -71,6 +71,11 @@ body{
   background-color: white;
   border-radius: 20px;
   box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
 .form-body{
@@ -84,10 +89,17 @@ body{
 .form-input {
   border-radius: 10px;
   border: 1px solid #ccc;
-  height: 30px;
-  width: 200px;
-  margin-bottom: 8px;
-  font-size: 18px;  /* Larger default font size */
+  height: 45px;
+  width: 25vw;
+  margin-bottom: 15px;
+  font-size: 16px;
+  padding: 0 15px;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: blue;
+  box-shadow: 0 0 5px rgba(0, 0, 255, 0.2);
 }
 
 .form-input::placeholder {
@@ -109,6 +121,12 @@ body{
     padding-left: 25vw; 
     padding-top: 10vh; /* Reduce padding on medium screens */
   }
+  
+  .form-input {
+    width: 280px;
+    height: 42px;
+    font-size: 15px;
+  }
 }
 
 @media screen and (max-width: 768px) {
@@ -126,6 +144,13 @@ body{
     padding-left: 20vw;
     padding-top: 10vh;
   }
+  
+  .form-input {
+    width: 250px;
+    height: 40px;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
 }
 
 @media screen and (max-width: 480px) {
@@ -142,6 +167,14 @@ body{
   .form-body {
     padding-left: 15vw;
     padding-top: 10vh;
+  }
+  
+  .form-input {
+    width: 220px;
+    height: 38px;
+    font-size: 13px;
+    margin-bottom: 10px;
+    padding: 0 12px;
   }
 }
 
@@ -179,6 +212,140 @@ body{
   width: 8vh;
   margin: 1vh;
 
+}
+
+.student-details {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  margin: 20px auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.profile-image-container {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #003366;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.student-details h2 {
+  color: #003366;
+  margin-bottom: 30px;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.info-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.3s ease;
+}
+
+.info-row:hover {
+  background-color: #f8f9fa;
+}
+
+.info-row label {
+  font-weight: bold;
+  color: #444;
+  font-size: 1.1rem;
+  min-width: 120px;
+}
+
+.info-row span {
+  color: #333;
+  font-size: 1.1rem;
+  text-align: right;
+  flex: 1;
+  margin-left: 20px;
+}
+
+/* Make the Start Over button more prominent */
+.form-button.reset-button {
+  margin: 30px auto 0;
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  background-color: #003366;
+  transition: background-color 0.3s ease;
+  display: block;
+}
+
+.form-button.reset-button:hover {
+  background-color: #004080;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .profile-image-container {
+    width: 120px;
+    height: 120px;
+  }
+
+  .student-details {
+    width: 95%;
+    padding: 20px;
+  }
+
+  .student-details h2 {
+    font-size: 1.75rem;
+    margin-bottom: 25px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .info-row span {
+    text-align: left;
+    margin-left: 0;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .profile-image-container {
+    width: 100px;
+    height: 100px;
+  }
+
+  .student-details {
+    width: 100%;
+    padding: 15px;
+  }
+
+  .student-details h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .info-row label, 
+  .info-row span {
+    font-size: 1rem;
+  }
 }
 
 
