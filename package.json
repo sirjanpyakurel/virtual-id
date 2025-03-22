@@ -6,7 +6,8 @@
   "scripts": {
     "start": "cd Backend && npm start",
     "dev": "cd Code-a-Thon && npm run dev",
-    "install-all": "npm install && cd Backend && npm install && cd ../Code-a-Thon && npm install"
+    "install-all": "npm install && cd Backend && npm install && cd ../Code-a-Thon && npm install",
+    "build": "cd Backend && npm install && npm run build"
   },
   "author": "",
   "license": "MIT",
@@ -15,5 +16,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
