@@ -4,6 +4,7 @@ import tigerLogo from "./assets/tiger.png";
 import { students } from "./data/students";
 import VirtualIDCard from './components/VirtualIDCard';
 import WalletCard from './components/WalletCard';
+import StudentIDCard from './components/StudentIDCard';
 
 const Form = () => {
     const [formData, setFormData] = useState({
@@ -18,6 +19,7 @@ const Form = () => {
     const [student, setStudent] = useState(null);
     const [error, setError] = useState('');
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const [showIDCard, setShowIDCard] = useState(false);
     const [isInfoConfirmed, setIsInfoConfirmed] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isValidated, setIsValidated] = useState(false);
@@ -126,18 +128,23 @@ const Form = () => {
         setStudent(null);
         setError('');
         setShowConfirmation(false);
+        setShowIDCard(false);
         setIsInfoConfirmed(false);
         setIsValidated(false);
         setStudentData(null);
     };
 
-    const handleConfirmation = (isCorrect) => {
-        if (isCorrect) {
-            setIsInfoConfirmed(true);
+    const handleConfirmation = (confirmed) => {
+        if (confirmed) {
+            setShowIDCard(true);
         } else {
-            setError('Your information appears to be incorrect. Please visit the Administration Office (Room 105, Student Center) to update your records.');
+            // Reset form or allow editing
             setShowConfirmation(false);
         }
+    };
+
+    const handleOTPSuccess = () => {
+        setShowConfirmation(true);
     };
 
     const renderStudentInfo = () => (
@@ -184,7 +191,7 @@ const Form = () => {
 
     return (
         <div className="form-container">
-            {!isValidated ? (
+            {!showConfirmation && !showIDCard && (
                 <div className="form-header">
                     <img src={tigerLogo} alt="tiger" className="form-image" />
                     
@@ -246,16 +253,29 @@ const Form = () => {
                         </div>
                     )}
                 </div>
-            ) : (
-                <div className="card-container">
-                    <WalletCard studentData={studentData} />
-                    <button 
-                        className="reset-button"
-                        onClick={handleReset}
-                    >
-                        Create Another ID
-                    </button>
+            )}
+            
+            {showConfirmation && !showIDCard && (
+                <div className="confirmation-dialog">
+                    <h3>Please confirm your information:</h3>
+                    <div className="info-preview">
+                        <p><strong>Name:</strong> {formData.name}</p>
+                        <p><strong>T Number:</strong> {formData.tNumber}</p>
+                        <p><strong>Major:</strong> {formData.major}</p>
+                    </div>
+                    <div className="confirmation-buttons">
+                        <button onClick={() => handleConfirmation(true)}>
+                            Yes, Create ID Card
+                        </button>
+                        <button onClick={() => handleConfirmation(false)}>
+                            No, Edit Information
+                        </button>
+                    </div>
                 </div>
+            )}
+            
+            {showIDCard && (
+                <StudentIDCard studentData={formData} />
             )}
         </div>
     );
