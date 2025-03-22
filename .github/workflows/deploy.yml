@@ -1,0 +1,71 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Dependencies
+        run: |
+          cd Code-a-Thon
+          npm install
+          
+      - name: Build Frontend
+        env:
+          VITE_SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          VITE_SENDGRID_FROM_EMAIL: ${{ secrets.SENDGRID_FROM_EMAIL }}
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+        run: |
+          cd Code-a-Thon
+          npm run build
+          
+      - name: Deploy to Render
+        uses: render-actions/deploy@v1
+        with:
+          service-id: ${{ secrets.RENDER_FRONTEND_SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Dependencies
+        run: |
+          cd Backend
+          npm install
+          
+      - name: Deploy to Render
+        env:
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          SENDGRID_FROM_EMAIL: ${{ secrets.SENDGRID_FROM_EMAIL }}
+          PORT: ${{ vars.PORT }}
+          NODE_ENV: production
+        uses: render-actions/deploy@v1
+        with:
+          service-id: ${{ secrets.RENDER_BACKEND_SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
+
+# Add deployment steps here based on your hosting platform
+# For example, if using Heroku:
+# - name: Deploy to Heroku
+#   uses: akhileshns/heroku-deploy@v3.12.12
+#   with:
+#     heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+#     heroku_app_name: "your-app-name"
+#     heroku_email: "your-email@example.com" 
