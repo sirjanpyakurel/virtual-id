@@ -34,7 +34,10 @@ const Form = () => {
                 const foundStudent = findStudent(formData.email, formData.campusId);
                 if (foundStudent) {
                     // Send OTP via SendGrid
-                    const response = await fetch('https://virtual-id-backend.onrender.com/send-otp', {
+                    const apiUrl = process.env.NODE_ENV === 'production' 
+                        ? 'https://virtual-id-backend.onrender.com' 
+                        : 'http://localhost:5002';
+                    const response = await fetch(`${apiUrl}/send-otp`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: formData.email })
@@ -56,7 +59,10 @@ const Form = () => {
                     throw new Error('Please enter a valid 6-digit OTP');
                 }
 
-                const response = await fetch('https://virtual-id-backend.onrender.com/verify-otp', {
+                const apiUrl = process.env.NODE_ENV === 'production' 
+                    ? 'https://virtual-id-backend.onrender.com' 
+                    : 'http://localhost:5002';
+                const response = await fetch(`${apiUrl}/verify-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 

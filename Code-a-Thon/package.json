@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "NODE_ENV=production vite build",
     "preview": "vite preview",
-    "start": "vite preview --host"
+    "start": "NODE_ENV=production vite preview --host"
   },
   "dependencies": {
     "@mui/icons-material": "^6.4.8",
