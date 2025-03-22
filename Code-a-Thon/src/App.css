@@ -3,54 +3,92 @@ body{
   margin: 0;
 }
 
-.header-container{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: blue;
-  height: 10vw;
+.header {
   width: 100%;
+  background: linear-gradient(135deg, #003366 0%, #004080 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* .header-logo img {
-  max-width: 45vw;  /* Default size for large screens 
-  max-height: 80%;
-  object-fit: contain;
-  filter: invert(100%) sepia(100%) saturate(100%) hue-rotate(180deg);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  height: auto;
 }
-  */
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
 
 .header-logo {
+  width: 48px;
+  height: 48px;
+  filter: brightness(0) invert(1);
+  transition: transform 0.3s ease;
+}
+
+.header-logo:hover {
+  transform: scale(1.05);
+}
+
+.header-text {
   display: flex;
-  align-items: center;
-  gap: 20px;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.header-logo h2{
-  font-size: 3vw;
+.header-text h1 {
   color: white;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.5px;
 }
 
-.header-svg {
-  width: 50px;
-  height: 50px;
-  filter: brightness(0) invert(1); /* Makes the SVG white */
+.header-text p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  margin: 0;
+  letter-spacing: 0.5px;
 }
 
 @media screen and (max-width: 768px) {
-  .header-svg {
+  .header-container {
+    padding: 0.75rem 1rem;
+  }
+
+  .header-logo {
     width: 40px;
     height: 40px;
+  }
+
+  .header-text h1 {
+    font-size: 1.5rem;
+  }
+
+  .header-text p {
+    font-size: 0.9rem;
   }
 }
 
 @media screen and (max-width: 480px) {
-  .header-svg {
-    width: 30px;
-    height: 30px;
+  .header-container {
+    padding: 0.5rem;
+  }
+
+  .header-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .header-text h1 {
+    font-size: 1.25rem;
+  }
+
+  .header-text p {
+    font-size: 0.8rem;
   }
 }
 
