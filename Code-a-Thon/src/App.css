@@ -12,51 +12,27 @@ body{
 .header-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 1.5rem 2rem;
   height: auto;
 }
 
 .header-content {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 1.5rem;
-}
-
-.header-logos {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.header-tiger-logo {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  filter: brightness(0) invert(1);
-  transition: transform 0.3s ease;
-}
-
-.header-id-logo {
-  width: 32px;
-  height: 32px;
-  filter: brightness(0) invert(1);
-  transition: transform 0.3s ease;
-}
-
-.header-tiger-logo:hover,
-.header-id-logo:hover {
-  transform: scale(1.05);
 }
 
 .header-text {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
 }
 
 .header-text h1 {
   color: white;
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 600;
   margin: 0;
   letter-spacing: 0.5px;
@@ -64,24 +40,28 @@ body{
 
 .header-text p {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
+  font-size: 1.1rem;
   margin: 0;
   letter-spacing: 0.5px;
 }
 
 @media screen and (max-width: 768px) {
   .header-container {
-    padding: 0.75rem 1rem;
+    padding: 1.25rem 1rem;
   }
 
-  .header-tiger-logo {
-    width: 40px;
-    height: 40px;
+  .header-text h1 {
+    font-size: 1.75rem;
   }
 
-  .header-id-logo {
-    width: 28px;
-    height: 28px;
+  .header-text p {
+    font-size: 1rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .header-container {
+    padding: 1rem;
   }
 
   .header-text h1 {
@@ -90,30 +70,6 @@ body{
 
   .header-text p {
     font-size: 0.9rem;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .header-container {
-    padding: 0.5rem;
-  }
-
-  .header-tiger-logo {
-    width: 32px;
-    height: 32px;
-  }
-
-  .header-id-logo {
-    width: 24px;
-    height: 24px;
-  }
-
-  .header-text h1 {
-    font-size: 1.25rem;
-  }
-
-  .header-text p {
-    font-size: 0.8rem;
   }
 }
 
