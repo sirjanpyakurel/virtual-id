@@ -23,17 +23,17 @@ export default function StudentIDCard({ studentData }) {
         <div className="details-section">
           <div className="info-item">
             <label>Name:</label>
-            <span>{studentData.name}</span>
+            <span>{studentData.name || 'N/A'}</span>
           </div>
           
           <div className="info-item">
             <label>T Number:</label>
-            <span>{studentData.tNumber}</span>
+            <span>{studentData.tNumber || 'N/A'}</span>
           </div>
           
           <div className="info-item">
             <label>Major:</label>
-            <span>{studentData.major}</span>
+            <span>{studentData.major || 'N/A'}</span>
           </div>
           
           <div className="info-item">

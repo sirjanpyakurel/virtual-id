@@ -13,6 +13,7 @@ const Form = () => {
         name: '',
         tNumber: '',
         major: '',
+        photo: null
     });
     const [showOtpInput, setShowOtpInput] = useState(false);
     const [otp, setOtp] = useState('');
@@ -122,6 +123,7 @@ const Form = () => {
             name: '',
             tNumber: '',
             major: '',
+            photo: null
         });
         setShowOtpInput(false);
         setOtp('');
@@ -137,14 +139,22 @@ const Form = () => {
     const handleConfirmation = (confirmed) => {
         if (confirmed) {
             setShowIDCard(true);
+            setShowConfirmation(false);
         } else {
-            // Reset form or allow editing
             setShowConfirmation(false);
         }
     };
 
     const handleOTPSuccess = () => {
         setShowConfirmation(true);
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prevData => ({
+            ...prevData,
+            [name]: value
+        }));
     };
 
     const renderStudentInfo = () => (
@@ -226,6 +236,30 @@ const Form = () => {
                                         required
                                     />
                                 )}
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleInputChange}
+                                    placeholder="Full Name"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="tNumber"
+                                    value={formData.tNumber}
+                                    onChange={handleInputChange}
+                                    placeholder="T Number"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="major"
+                                    value={formData.major}
+                                    onChange={handleInputChange}
+                                    placeholder="Major"
+                                    required
+                                />
                                 <button 
                                     type="submit" 
                                     className="form-button"
