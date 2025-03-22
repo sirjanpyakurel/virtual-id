@@ -3,11 +3,15 @@ import "./App.css";
 import tigerLogo from "./assets/tiger.png";
 import { students } from "./data/students";
 import VirtualIDCard from './components/VirtualIDCard';
+import WalletCard from './components/WalletCard';
 
 const Form = () => {
     const [formData, setFormData] = useState({
         email: '',
-        campusId: ''
+        campusId: '',
+        name: '',
+        tNumber: '',
+        major: '',
     });
     const [showOtpInput, setShowOtpInput] = useState(false);
     const [otp, setOtp] = useState('');
@@ -16,6 +20,8 @@ const Form = () => {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [isInfoConfirmed, setIsInfoConfirmed] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isValidated, setIsValidated] = useState(false);
+    const [studentData, setStudentData] = useState(null);
 
     const findStudent = (email, campusId) => {
         return students.find(s => 
@@ -85,6 +91,11 @@ const Form = () => {
                 // Only proceed if we have both successful verification and valid student data
                 if (student && data.message === "OTP verified successfully") {
                     setShowConfirmation(true);
+                    setIsValidated(true);
+                    setStudentData({
+                        ...student,
+                        validUntil: new Date().toLocaleDateString(),
+                    });
                 } else {
                     throw new Error('Verification failed. Please try again.');
                 }
@@ -103,13 +114,21 @@ const Form = () => {
     };
 
     const handleReset = () => {
-        setFormData({ email: '', campusId: '' });
+        setFormData({
+            email: '',
+            campusId: '',
+            name: '',
+            tNumber: '',
+            major: '',
+        });
         setShowOtpInput(false);
         setOtp('');
         setStudent(null);
         setError('');
         setShowConfirmation(false);
         setIsInfoConfirmed(false);
+        setIsValidated(false);
+        setStudentData(null);
     };
 
     const handleConfirmation = (isCorrect) => {
@@ -165,67 +184,79 @@ const Form = () => {
 
     return (
         <div className="form-container">
-            <div className="form-header">
-                <img src={tigerLogo} alt="tiger" className="form-image" />
-                
-                {!showConfirmation ? (
-                    <div className="form-body">
-                        <form onSubmit={handleSubmit}>
-                            <input
-                                type="email"
-                                className="form-input"
-                                placeholder="Enter your email"
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                disabled={showOtpInput}
-                                required
-                            />
-                            <input
-                                type="text"
-                                className="form-input"
-                                placeholder="Enter your campus ID"
-                                value={formData.campusId}
-                                onChange={(e) => setFormData({ ...formData, campusId: e.target.value })}
-                                disabled={showOtpInput}
-                                required
-                            />
-                            {showOtpInput && (
+            {!isValidated ? (
+                <div className="form-header">
+                    <img src={tigerLogo} alt="tiger" className="form-image" />
+                    
+                    {!showConfirmation ? (
+                        <div className="form-body">
+                            <form onSubmit={handleSubmit}>
+                                <input
+                                    type="email"
+                                    className="form-input"
+                                    placeholder="Enter your email"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    disabled={showOtpInput}
+                                    required
+                                />
                                 <input
                                     type="text"
                                     className="form-input"
-                                    placeholder="Enter OTP from your email"
-                                    value={otp}
-                                    onChange={(e) => setOtp(e.target.value)}
+                                    placeholder="Enter your campus ID"
+                                    value={formData.campusId}
+                                    onChange={(e) => setFormData({ ...formData, campusId: e.target.value })}
+                                    disabled={showOtpInput}
                                     required
                                 />
-                            )}
-                            <button 
-                                type="submit" 
-                                className="form-button"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? 'Processing...' : (showOtpInput ? 'Verify OTP' : 'Submit')}
-                            </button>
-                        </form>
-                        
-                        {error && <div className="error-message">{error}</div>}
-                    </div>
-                ) : (
-                    <div className="verification-success">
-                        {!isInfoConfirmed ? (
-                            renderStudentInfo()
-                        ) : (
-                            <>
-                                <div className="success-message">Information verified successfully!</div>
-                                <VirtualIDCard student={student} />
-                                <button onClick={handleReset} className="form-button reset-button">
-                                    Start Over
+                                {showOtpInput && (
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        placeholder="Enter OTP from your email"
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value)}
+                                        required
+                                    />
+                                )}
+                                <button 
+                                    type="submit" 
+                                    className="form-button"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 'Processing...' : (showOtpInput ? 'Verify OTP' : 'Submit')}
                                 </button>
-                            </>
-                        )}
-                    </div>
-                )}
-            </div>
+                            </form>
+                            
+                            {error && <div className="error-message">{error}</div>}
+                        </div>
+                    ) : (
+                        <div className="verification-success">
+                            {!isInfoConfirmed ? (
+                                renderStudentInfo()
+                            ) : (
+                                <>
+                                    <div className="success-message">Information verified successfully!</div>
+                                    <VirtualIDCard student={student} />
+                                    <button onClick={handleReset} className="form-button reset-button">
+                                        Start Over
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div className="card-container">
+                    <WalletCard studentData={studentData} />
+                    <button 
+                        className="reset-button"
+                        onClick={handleReset}
+                    >
+                        Create Another ID
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
