@@ -22,14 +22,29 @@ body{
   gap: 1.5rem;
 }
 
-.header-logo {
+.header-logos {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-tiger-logo {
   width: 48px;
   height: 48px;
+  object-fit: contain;
   filter: brightness(0) invert(1);
   transition: transform 0.3s ease;
 }
 
-.header-logo:hover {
+.header-id-logo {
+  width: 32px;
+  height: 32px;
+  filter: brightness(0) invert(1);
+  transition: transform 0.3s ease;
+}
+
+.header-tiger-logo:hover,
+.header-id-logo:hover {
   transform: scale(1.05);
 }
 
@@ -59,9 +74,14 @@ body{
     padding: 0.75rem 1rem;
   }
 
-  .header-logo {
+  .header-tiger-logo {
     width: 40px;
     height: 40px;
+  }
+
+  .header-id-logo {
+    width: 28px;
+    height: 28px;
   }
 
   .header-text h1 {
@@ -78,9 +98,14 @@ body{
     padding: 0.5rem;
   }
 
-  .header-logo {
+  .header-tiger-logo {
     width: 32px;
     height: 32px;
+  }
+
+  .header-id-logo {
+    width: 24px;
+    height: 24px;
   }
 
   .header-text h1 {
