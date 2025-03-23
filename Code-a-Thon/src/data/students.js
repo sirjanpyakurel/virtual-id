@@ -143,5 +143,13 @@ export const students = [
         major: "Computer Science", // Replace with your major
         classification: "Junior", // Replace with your classification
         imageUrl: yourPhoto // This will use your local photo
+    },
+    {
+        name: "John Smith",
+        studentId: "T12345678",
+        email: "storybig23@gmail.com",
+        major: "Computer Science",
+        classification: "Senior",
+        imageUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=John"
     }
 ]; 
