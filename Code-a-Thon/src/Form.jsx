@@ -223,9 +223,6 @@ const Form = () => {
                             <>
                                 <div className="success-message">Information verified successfully!</div>
                                 <VirtualIDCard student={student} onReset={handleReset} />
-                                <button onClick={handleReset} className="form-button reset-button">
-                                    Start Over
-                                </button>
                             </>
                         )}
                     </div>

@@ -1,8 +1,34 @@
 import React from 'react';
 import tigerLogo from "../assets/tiger.png";
 
-const VirtualIDCard = ({ student }) => {
+const VirtualIDCard = ({ student, onReset }) => {
     if (!student) return null;
+
+    const handleSendEmail = async () => {
+        try {
+            const apiUrl = process.env.NODE_ENV === 'production' 
+                ? 'https://virtual-id-backend.onrender.com' 
+                : 'http://localhost:5002';
+            const response = await fetch(`${apiUrl}/send-id-card`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    email: student.email,
+                    studentData: student
+                })
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to send ID card');
+            }
+
+            alert('ID card sent successfully to your email!');
+        } catch (error) {
+            console.error('Error sending ID card:', error);
+            alert('Failed to send ID card. Please try again.');
+        }
+    };
 
     return (
         <div className="virtual-id-card">
@@ -42,6 +68,12 @@ const VirtualIDCard = ({ student }) => {
                 </div>
             </div>
             <div className="id-card-footer">
+                <div className="barcode">
+                    <img 
+                        src={`https://barcode.tec-it.com/barcode.ashx?data=${student.studentId}&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&width=&height=50&minwidth=2`}
+                        alt="Student ID Barcode"
+                    />
+                </div>
                 <div className="validity">
                     <span>Valid through: 2024-2025</span>
                 </div>
@@ -49,6 +81,14 @@ const VirtualIDCard = ({ student }) => {
                     <span>Authorized Signature</span>
                     <div className="signature-line"></div>
                 </div>
+            </div>
+            <div className="card-actions">
+                <button onClick={handleSendEmail} className="form-button">
+                    Send to Email
+                </button>
+                <button onClick={onReset} className="form-button reset-button">
+                    Start Over
+                </button>
             </div>
         </div>
     );
