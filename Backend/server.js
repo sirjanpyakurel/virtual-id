@@ -118,14 +118,23 @@ app.post("/send-id-card", async (req, res) => {
 
   try {
     let walletUrl = null;
+    let walletMessage = null;
+    
+    // Check if the email is a Gmail account
+    const isGmail = email.toLowerCase().endsWith('@gmail.com');
     
     if (process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT) {
-      try {
-        await createPassClass();
-        await createPassObject(studentData);
-        walletUrl = generateSaveUrl(studentData);
-      } catch (walletError) {
-        console.error('Wallet integration failed:', walletError.response?.data || walletError.message);
+      if (isGmail) {
+        try {
+          await createPassClass();
+          await createPassObject(studentData);
+          walletUrl = generateSaveUrl(studentData);
+        } catch (walletError) {
+          console.error('Wallet integration failed:', walletError.response?.data || walletError.message);
+          walletMessage = "Unable to generate Wallet pass. Please try again later.";
+        }
+      } else {
+        walletMessage = "Wallet feature is currently available only for Gmail accounts in demo mode.";
       }
     }
 
@@ -166,20 +175,23 @@ app.post("/send-id-card", async (req, res) => {
           </div>
           
           <div style="text-align: center; margin: 20px 0;">
-            <a href="${walletUrl || '#'}" 
-               style="display: inline-block; 
-                      text-decoration: none;
-                      background-color: #4285f4;
-                      color: white;
-                      padding: 12px 24px;
-                      border-radius: 8px;
-                      font-weight: 500;
-                      font-size: 16px;
-                      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                      transition: all 0.3s ease;
-                      ${!walletUrl ? 'opacity: 0.5; pointer-events: none;' : ''}">
-              Add to Wallet
-            </a>
+            ${walletUrl ? `
+              <a href="${walletUrl}" 
+                 style="display: inline-block; 
+                        text-decoration: none;
+                        background-color: #4285f4;
+                        color: white;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-weight: 500;
+                        font-size: 16px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        transition: all 0.3s ease;">
+                Add to Wallet
+              </a>
+            ` : walletMessage ? `
+              <p style="color: #666; font-style: italic;">${walletMessage}</p>
+            ` : ''}
           </div>
           
           <p style="color: #666; font-size: 0.9em; text-align: center;">
@@ -192,7 +204,8 @@ app.post("/send-id-card", async (req, res) => {
     await sgMail.send(msg);
     res.status(200).json({ 
       message: "ID card sent successfully!",
-      walletUrl: walletUrl
+      walletUrl: walletUrl,
+      walletMessage: walletMessage
     });
   } catch (error) {
     console.error('Failed to send ID card:', error.response?.body?.errors || error.message);

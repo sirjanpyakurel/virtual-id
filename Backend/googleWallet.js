@@ -31,7 +31,7 @@ async function createPassClass() {
       subheader: {
         defaultValue: {
           language: 'en-US',
-          value: 'Student ID'
+          value: 'Student ID Card'
         }
       },
       logo: {
@@ -40,6 +40,11 @@ async function createPassClass() {
         }
       },
       hexBackgroundColor: '#003366',
+      heroImage: {
+        sourceUri: {
+          uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
+        }
+      }
     }
   };
 
@@ -65,13 +70,7 @@ async function createPassObject(student) {
   const genericObject = {
     id: objectId,
     classId: `${ISSUER_ID}.student_id_class`,
-    genericType: 'GENERIC_TYPE_UNSPECIFIED',
-    hexBackgroundColor: '#003366',
-    logo: {
-      sourceUri: {
-        uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
-      }
-    },
+    genericType: 'GENERIC_TYPE_TRANSIT',  // Using TRANSIT type as it's commonly used for ID cards
     cardTitle: {
       defaultValue: {
         language: 'en-US',
@@ -81,7 +80,7 @@ async function createPassObject(student) {
     subheader: {
       defaultValue: {
         language: 'en-US',
-        value: 'Student ID'
+        value: 'Student ID Card'
       }
     },
     header: {
@@ -90,25 +89,48 @@ async function createPassObject(student) {
         value: student.name
       }
     },
+    logo: {
+      sourceUri: {
+        uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
+      }
+    },
+    heroImage: {
+      sourceUri: {
+        uri: student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=003366&color=fff&size=400&bold=true`
+      }
+    },
     barcode: {
       type: 'CODE_128',
       value: student.studentId,
       alternateText: student.studentId
     },
+    hexBackgroundColor: '#003366',
     textModulesData: [
       {
-        header: 'ID Number',
-        body: student.studentId
+        header: 'Student ID',
+        body: student.studentId,
+        id: 'student_id'
       },
       {
         header: 'Major',
-        body: student.major
+        body: student.major,
+        id: 'major'
       },
       {
         header: 'Classification',
-        body: student.classification || 'Student'
+        body: student.classification || 'Student',
+        id: 'classification'
       }
     ],
+    linksModuleData: {
+      uris: [
+        {
+          uri: 'https://www.tnstate.edu',
+          description: 'Tennessee State University Website',
+          id: 'official_site'
+        }
+      ]
+    },
     validTimeInterval: {
       start: {
         date: '2024-01-01T00:00:00Z'
@@ -116,7 +138,23 @@ async function createPassObject(student) {
       end: {
         date: '2025-12-31T23:59:59Z'
       }
-    }
+    },
+    imageModulesData: [
+      {
+        mainImage: {
+          sourceUri: {
+            uri: student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=003366&color=fff&size=400&bold=true`
+          },
+          contentDescription: {
+            defaultValue: {
+              language: 'en-US',
+              value: 'Student Photo'
+            }
+          }
+        },
+        id: 'student_photo'
+      }
+    ]
   };
 
   try {
