@@ -277,8 +277,8 @@ body{
 }
 
 .virtual-id-card {
-    width: 450px;
-    padding: 2rem;
+    width: 500px;
+    padding: 2.5rem;
     background: linear-gradient(135deg, #4a148c 0%, #6a1b9a 100%);
     border-radius: 12px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -380,7 +380,7 @@ body{
 }
 
 .barcode-container {
-    width: 40%;  /* Reduced from 60% */
+    width: 35%;
     margin: 1rem auto;
     background: white;
     padding: 0.5rem;
@@ -392,7 +392,7 @@ body{
 .barcode-container img {
     max-width: 100%;
     height: auto;
-    display: block;  /* Ensures no extra space */
+    display: block;
 }
 
 .card-actions {
