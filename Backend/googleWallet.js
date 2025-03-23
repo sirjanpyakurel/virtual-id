@@ -111,6 +111,9 @@ async function createPassObject(student) {
     } catch (error) {
       // If object doesn't exist (404), create it
       if (error.response?.status === 404) {
+        // Generate a PNG avatar URL using UI Avatars
+        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=003366&color=fff&size=400&bold=true&format=png`;
+
         const genericObject = {
           id: objectId,
           classId: `${ISSUER_ID}.student_id_class`,
@@ -140,7 +143,7 @@ async function createPassObject(student) {
           },
           heroImage: {
             sourceUri: {
-              uri: student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=003366&color=fff&size=400&bold=true`
+              uri: avatarUrl
             }
           },
           barcode: {
