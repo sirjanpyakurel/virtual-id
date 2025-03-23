@@ -118,68 +118,38 @@ app.post("/send-id-card", async (req, res) => {
 
   try {
     let walletUrl = null;
-    let walletMessage = null;
-    
-    // Debug log the incoming data
-    console.log('Received request to send ID card:', {
-      email,
-      studentName: studentData.name,
-      studentId: studentData.studentId
-    });
+    let walletError = null;
     
     // Check if the email is a Gmail account
     const isGmail = email.toLowerCase().endsWith('@gmail.com');
-    console.log('Is Gmail account:', isGmail);
     
-    // Debug log the environment variables
-    console.log('Checking Wallet credentials:', {
-      hasIssuerId: !!process.env.GOOGLE_WALLET_ISSUER_ID,
-      hasServiceAccountEmail: !!process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,
-      hasServiceAccount: !!process.env.GOOGLE_WALLET_SERVICE_ACCOUNT,
-      issuerIdValue: process.env.GOOGLE_WALLET_ISSUER_ID,
-      serviceAccountEmail: process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL
-    });
+    // Check Google Wallet configuration
+    const hasWalletConfig = process.env.GOOGLE_WALLET_ISSUER_ID && 
+                           process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL && 
+                           process.env.GOOGLE_WALLET_SERVICE_ACCOUNT;
 
-    // First critical issue: Check if we have the required Wallet functions
-    if (typeof createPassClass !== 'function' || typeof createPassObject !== 'function' || typeof generateSaveUrl !== 'function') {
-      console.error('Wallet functions not properly imported:', {
-        hasCreatePassClass: typeof createPassClass === 'function',
-        hasCreatePassObject: typeof createPassObject === 'function',
-        hasGenerateSaveUrl: typeof generateSaveUrl === 'function'
-      });
-      walletMessage = "Wallet integration is currently unavailable.";
-    } else if (process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT) {
-      if (isGmail) {
-        try {
-          console.log('Starting Wallet pass creation...');
-          await createPassClass();
-          console.log('Pass class created, creating pass object...');
-          await createPassObject(studentData);
-          console.log('Pass object created, generating save URL...');
-          walletUrl = generateSaveUrl(studentData);
-          console.log('Wallet URL generated:', walletUrl);
-        } catch (walletError) {
-          console.error('Wallet integration failed:', {
-            error: walletError.message,
-            details: walletError.response?.data,
-            stack: walletError.stack
-          });
-          walletMessage = "Unable to generate Wallet pass. Please try again later.";
-        }
-      } else {
-        console.log('Non-Gmail account, skipping Wallet integration');
-        walletMessage = "Wallet feature is currently available only for Gmail accounts in demo mode.";
+    if (hasWalletConfig && isGmail) {
+      try {
+        console.log('Attempting to create Google Wallet pass for:', studentData.studentId);
+        await createPassClass();
+        await createPassObject(studentData);
+        walletUrl = generateSaveUrl(studentData);
+        console.log('Successfully generated Wallet URL for:', studentData.studentId);
+      } catch (error) {
+        console.error('Wallet integration failed:', {
+          error: error.message,
+          details: error.response?.data,
+          studentId: studentData.studentId
+        });
+        walletError = error.response?.data?.error?.message || error.message;
       }
     } else {
-      console.log('Missing Wallet credentials');
-      walletMessage = "Wallet integration is not configured.";
+      console.log('Skipping Wallet integration:', {
+        hasConfig: hasWalletConfig,
+        isGmail,
+        email: email.split('@')[1]
+      });
     }
-
-    // Debug log before creating email
-    console.log('Preparing email with Wallet status:', {
-      hasWalletUrl: !!walletUrl,
-      walletMessage
-    });
 
     const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentData.name)}&background=003366&color=fff&size=200&bold=true&font-size=0.5`;
 
@@ -218,22 +188,27 @@ app.post("/send-id-card", async (req, res) => {
           </div>
           
           <div style="text-align: center; margin: 20px 0;">
-            ${walletUrl ? `
-              <a href="${walletUrl}" 
-                 style="display: inline-block; 
-                        text-decoration: none;
-                        background-color: #4285f4;
-                        color: white;
-                        padding: 12px 24px;
-                        border-radius: 8px;
-                        font-weight: 500;
-                        font-size: 16px;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                        transition: all 0.3s ease;">
-                Add to Wallet
-              </a>
-            ` : walletMessage ? `
-              <p style="color: #666; font-style: italic;">${walletMessage}</p>
+            <a href="${walletUrl || '#'}" 
+               style="display: inline-block; 
+                      text-decoration: none;
+                      background-color: ${walletUrl ? '#4285f4' : '#9e9e9e'};
+                      color: white;
+                      padding: 14px 28px;
+                      border-radius: 8px;
+                      font-weight: 600;
+                      font-size: 16px;
+                      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                      transition: all 0.3s ease;
+                      ${!walletUrl ? 'cursor: not-allowed; opacity: 0.8;' : 'hover: { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }'}">
+              <img src="https://fonts.gstatic.com/s/i/productlogos/wallet/v7/192px.svg" 
+                   alt="Google Wallet" 
+                   style="height: 20px; vertical-align: middle; margin-right: 8px;">
+              Add to Google Wallet ${!walletUrl ? '(Gmail Required)' : ''}
+            </a>
+            ${!isGmail ? `
+              <p style="color: #666; font-style: italic; margin-top: 12px; font-size: 0.9em;">
+                Note: Google Wallet feature requires a Gmail account.
+              </p>
             ` : ''}
           </div>
           
@@ -244,28 +219,15 @@ app.post("/send-id-card", async (req, res) => {
       `,
     };
 
-    // Debug log before sending email
-    console.log('Sending email with configuration:', {
-      to: email,
-      from: msg.from,
-      hasWalletButton: !!walletUrl,
-      walletMessage: walletMessage || 'None'
-    });
-
     await sgMail.send(msg);
-    console.log('Email sent successfully');
-    
     res.status(200).json({ 
       message: "ID card sent successfully!",
       walletUrl: walletUrl,
-      walletMessage: walletMessage
+      isGmail: isGmail,
+      walletError: walletError
     });
   } catch (error) {
-    console.error('Failed to send ID card:', {
-      error: error.message,
-      stack: error.stack,
-      sendgridErrors: error.response?.body?.errors
-    });
+    console.error('Failed to send ID card:', error.response?.body?.errors || error.message);
     if (error.response) {
       res.status(500).json({ 
         error: "Failed to send ID card",

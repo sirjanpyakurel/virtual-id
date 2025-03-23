@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import tigerLogo from "../assets/tiger.png";
+import { toast } from 'react-hot-toast';
 
 const VirtualIDCard = ({ student, onReset }) => {
+    const [loading, setLoading] = useState(false);
+
     if (!student) return null;
 
     const handleSendEmail = async () => {
         try {
-            // Get the image URL or generate avatar URL
-            const imageUrl = student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=ffffff&color=4a148c&size=200`;
-
+            setLoading(true);
             const response = await fetch('https://virtual-id-backend.onrender.com/send-id-card', {
                 method: 'POST',
                 headers: {
@@ -21,22 +22,33 @@ const VirtualIDCard = ({ student, onReset }) => {
                         studentId: student.studentId,
                         major: student.major,
                         classification: student.classification || 'Student',
-                        imageUrl: imageUrl,
+                        imageUrl: student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=ffffff&color=4a148c&size=200`,
                         barcodeUrl: `https://barcodeapi.org/api/128/${student.studentId}`,
                         email: student.email // Add email to student data for Google Wallet
                     }
-                }),
+                })
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                toast.success('ID card sent successfully!');
+                if (data.walletMessage) {
+                    // Show wallet-specific message if any
+                    toast.info(data.walletMessage);
+                }
+            } else {
+                toast.error(`Failed to send ID card: ${data.error}`);
+                if (data.details) {
+                    console.error('Error details:', data.details);
+                    toast.error(`Error details: ${JSON.stringify(data.details)}`);
+                }
             }
-
-            const result = await response.json();
-            alert('ID card sent to your email successfully! Check your email to add it to Google Wallet.');
         } catch (error) {
-            console.error('Error sending email:', error);
-            alert('Failed to send ID card to email. Please try again.');
+            console.error('Error sending ID card:', error);
+            toast.error('Failed to send ID card. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -91,8 +103,8 @@ const VirtualIDCard = ({ student, onReset }) => {
                 </div>
             </div>
             <div className="card-actions">
-                <button className="action-button send-email-btn" onClick={handleSendEmail}>
-                    Send to Email
+                <button className="action-button send-email-btn" onClick={handleSendEmail} disabled={loading}>
+                    {loading ? 'Sending...' : 'Send to Email'}
                 </button>
                 <button className="action-button start-over-btn" onClick={onReset}>
                     Start Over
