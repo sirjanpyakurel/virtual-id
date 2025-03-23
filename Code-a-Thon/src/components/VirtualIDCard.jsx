@@ -1,6 +1,5 @@
 import React from 'react';
 import tigerLogo from "../assets/tiger.png";
-import { generateSaveUrl } from '../utils/googleWallet';
 
 const VirtualIDCard = ({ student, onReset }) => {
     if (!student) return null;
@@ -9,9 +8,6 @@ const VirtualIDCard = ({ student, onReset }) => {
         try {
             // Get the image URL or generate avatar URL
             const imageUrl = student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=ffffff&color=4a148c&size=200`;
-            
-            // Generate Google Wallet save URL
-            const walletUrl = await generateSaveUrl(student);
 
             const response = await fetch('https://virtual-id-backend.onrender.com/send-id-card', {
                 method: 'POST',
@@ -26,8 +22,7 @@ const VirtualIDCard = ({ student, onReset }) => {
                         major: student.major,
                         classification: student.classification || 'Student',
                         imageUrl: imageUrl,
-                        barcodeUrl: `https://barcodeapi.org/api/128/${student.studentId}`,
-                        walletUrl: walletUrl // Add wallet URL to the email data
+                        barcodeUrl: `https://barcodeapi.org/api/128/${student.studentId}`
                     }
                 }),
             });
