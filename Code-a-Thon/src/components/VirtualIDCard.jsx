@@ -13,7 +13,12 @@ const VirtualIDCard = ({ student, onReset }) => {
                 },
                 body: JSON.stringify({
                     email: student.email,
-                    data: student
+                    studentData: {
+                        name: student.name,
+                        studentId: student.studentId,
+                        major: student.major,
+                        imageUrl: student.imageUrl
+                    }
                 }),
             });
 
@@ -40,7 +45,7 @@ const VirtualIDCard = ({ student, onReset }) => {
                         <img src={tigerLogo} alt="TSU Logo" />
                         <div className="id-card-title">
                             <h3>TENNESSEE STATE UNIVERSITY</h3>
-                            <span>Student Identification</span>
+                            <span>Student ID Card</span>
                         </div>
                     </div>
                 </div>
@@ -48,31 +53,23 @@ const VirtualIDCard = ({ student, onReset }) => {
                 <div className="id-card-body">
                     <div className="id-card-photo">
                         <img 
-                            src={student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=003366&color=fff&size=200`}
+                            src={student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=ffffff&color=4a148c&size=200`}
                             alt={student.name}
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
                     </div>
                     <div className="id-card-info">
-                        <div className="info-row">
-                            <div className="info-item">
-                                <label>Name</label>
-                                <span>{student.name}</span>
-                            </div>
-                            <div className="info-item">
-                                <label>ID Number</label>
-                                <span>{student.studentId}</span>
-                            </div>
+                        <div className="info-item">
+                            <label>Name</label>
+                            <span>{student.name}</span>
                         </div>
-                        <div className="info-row">
-                            <div className="info-item">
-                                <label>Major</label>
-                                <span>{student.major}</span>
-                            </div>
-                            <div className="info-item">
-                                <label>Classification</label>
-                                <span>{student.classification}</span>
-                            </div>
+                        <div className="info-item">
+                            <label>ID Number</label>
+                            <span>{student.studentId}</span>
+                        </div>
+                        <div className="info-item">
+                            <label>Major</label>
+                            <span>{student.major}</span>
                         </div>
                     </div>
                 </div>
