@@ -5,8 +5,17 @@ const { createPassClass, createPassObject, generateSaveUrl } = require('./google
 require("dotenv").config();
 
 const app = express();
+
+// Configure CORS
+const corsOptions = {
+  origin: ['https://virtual-id-frontend.onrender.com', 'http://localhost:3000'],
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
-app.use(cors());
 
 // In-memory storage for OTPs (in production, use a database)
 const otpStore = new Map();
