@@ -114,10 +114,19 @@ app.post("/send-id-card", async (req, res) => {
   }
 
   try {
-    // Create Google Wallet pass
-    await createPassClass(); // Create or update the pass class
-    await createPassObject(studentData); // Create the pass object for this student
-    const walletUrl = generateSaveUrl(studentData); // Generate the save URL
+    let walletUrl = null;
+    
+    // Only try to create Google Wallet pass if credentials are available
+    if (process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL) {
+      try {
+        await createPassClass();
+        await createPassObject(studentData);
+        walletUrl = generateSaveUrl(studentData);
+      } catch (walletError) {
+        console.error('Error creating Google Wallet pass:', walletError);
+        // Continue without Google Wallet integration
+      }
+    }
 
     const msg = {
       to: email,
@@ -153,15 +162,17 @@ app.post("/send-id-card", async (req, res) => {
             </div>
           </div>
           
-          <div style="text-align: center; margin: 20px 0;">
-            <a href="${walletUrl}" 
-               style="display: inline-block; 
-                      text-decoration: none;">
-              <img src="https://developers.google.com/static/wallet/images/passes/add-to-google-wallet-button.png" 
-                   alt="Add to Google Wallet" 
-                   style="height: 40px; width: auto;">
-            </a>
-          </div>
+          ${walletUrl ? `
+            <div style="text-align: center; margin: 20px 0;">
+              <a href="${walletUrl}" 
+                 style="display: inline-block; 
+                        text-decoration: none;">
+                <img src="https://developers.google.com/static/wallet/images/passes/add-to-google-wallet-button.png" 
+                     alt="Add to Google Wallet" 
+                     style="height: 40px; width: auto;">
+              </a>
+            </div>
+          ` : ''}
           
           <p style="color: #666; font-size: 0.9em; text-align: center;">
             This is an official document. Please keep it safe and present it when required.
