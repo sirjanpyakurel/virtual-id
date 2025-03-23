@@ -120,23 +120,66 @@ app.post("/send-id-card", async (req, res) => {
     let walletUrl = null;
     let walletMessage = null;
     
+    // Debug log the incoming data
+    console.log('Received request to send ID card:', {
+      email,
+      studentName: studentData.name,
+      studentId: studentData.studentId
+    });
+    
     // Check if the email is a Gmail account
     const isGmail = email.toLowerCase().endsWith('@gmail.com');
+    console.log('Is Gmail account:', isGmail);
     
-    if (process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT) {
+    // Debug log the environment variables
+    console.log('Checking Wallet credentials:', {
+      hasIssuerId: !!process.env.GOOGLE_WALLET_ISSUER_ID,
+      hasServiceAccountEmail: !!process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,
+      hasServiceAccount: !!process.env.GOOGLE_WALLET_SERVICE_ACCOUNT,
+      issuerIdValue: process.env.GOOGLE_WALLET_ISSUER_ID,
+      serviceAccountEmail: process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL
+    });
+
+    // First critical issue: Check if we have the required Wallet functions
+    if (typeof createPassClass !== 'function' || typeof createPassObject !== 'function' || typeof generateSaveUrl !== 'function') {
+      console.error('Wallet functions not properly imported:', {
+        hasCreatePassClass: typeof createPassClass === 'function',
+        hasCreatePassObject: typeof createPassObject === 'function',
+        hasGenerateSaveUrl: typeof generateSaveUrl === 'function'
+      });
+      walletMessage = "Wallet integration is currently unavailable.";
+    } else if (process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT) {
       if (isGmail) {
         try {
+          console.log('Starting Wallet pass creation...');
           await createPassClass();
+          console.log('Pass class created, creating pass object...');
           await createPassObject(studentData);
+          console.log('Pass object created, generating save URL...');
           walletUrl = generateSaveUrl(studentData);
+          console.log('Wallet URL generated:', walletUrl);
         } catch (walletError) {
-          console.error('Wallet integration failed:', walletError.response?.data || walletError.message);
+          console.error('Wallet integration failed:', {
+            error: walletError.message,
+            details: walletError.response?.data,
+            stack: walletError.stack
+          });
           walletMessage = "Unable to generate Wallet pass. Please try again later.";
         }
       } else {
+        console.log('Non-Gmail account, skipping Wallet integration');
         walletMessage = "Wallet feature is currently available only for Gmail accounts in demo mode.";
       }
+    } else {
+      console.log('Missing Wallet credentials');
+      walletMessage = "Wallet integration is not configured.";
     }
+
+    // Debug log before creating email
+    console.log('Preparing email with Wallet status:', {
+      hasWalletUrl: !!walletUrl,
+      walletMessage
+    });
 
     const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentData.name)}&background=003366&color=fff&size=200&bold=true&font-size=0.5`;
 
@@ -201,14 +244,28 @@ app.post("/send-id-card", async (req, res) => {
       `,
     };
 
+    // Debug log before sending email
+    console.log('Sending email with configuration:', {
+      to: email,
+      from: msg.from,
+      hasWalletButton: !!walletUrl,
+      walletMessage: walletMessage || 'None'
+    });
+
     await sgMail.send(msg);
+    console.log('Email sent successfully');
+    
     res.status(200).json({ 
       message: "ID card sent successfully!",
       walletUrl: walletUrl,
       walletMessage: walletMessage
     });
   } catch (error) {
-    console.error('Failed to send ID card:', error.response?.body?.errors || error.message);
+    console.error('Failed to send ID card:', {
+      error: error.message,
+      stack: error.stack,
+      sendgridErrors: error.response?.body?.errors
+    });
     if (error.response) {
       res.status(500).json({ 
         error: "Failed to send ID card",
