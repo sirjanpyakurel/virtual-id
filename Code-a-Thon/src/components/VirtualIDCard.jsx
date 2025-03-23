@@ -24,7 +24,7 @@ const VirtualIDCard = ({ student, onReset }) => {
                         classification: student.classification || 'Student',
                         imageUrl: student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=ffffff&color=4a148c&size=200`,
                         barcodeUrl: `https://barcodeapi.org/api/128/${student.studentId}`,
-                        email: student.email // Add email to student data for Google Wallet
+                        email: student.email
                     }
                 })
             });
@@ -34,9 +34,12 @@ const VirtualIDCard = ({ student, onReset }) => {
             if (response.ok) {
                 toast.success('ID card sent successfully!');
                 if (data.walletMessage) {
-                    // Show wallet-specific message if any
                     toast.info(data.walletMessage);
                 }
+                // Wait for 2 seconds to show the success message before redirecting
+                setTimeout(() => {
+                    onReset(); // Reset the form and redirect to first page
+                }, 2000);
             } else {
                 toast.error(`Failed to send ID card: ${data.error}`);
                 if (data.details) {
