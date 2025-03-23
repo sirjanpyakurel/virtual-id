@@ -13,13 +13,28 @@ const VirtualIDCard = ({ student, onReset }) => {
                 try {
                     const response = await fetch(avatarUrl);
                     const blob = await response.blob();
-                    imageData = await new Promise((resolve) => {
+                    const base64 = await new Promise((resolve) => {
                         const reader = new FileReader();
                         reader.onloadend = () => resolve(reader.result);
                         reader.readAsDataURL(blob);
                     });
+                    imageData = base64;
                 } catch (error) {
                     console.error('Error converting avatar to base64:', error);
+                }
+            } else {
+                // If we have a custom image URL, convert it to base64 as well
+                try {
+                    const response = await fetch(student.imageUrl);
+                    const blob = await response.blob();
+                    const base64 = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                    imageData = base64;
+                } catch (error) {
+                    console.error('Error converting custom image to base64:', error);
                 }
             }
 
@@ -35,7 +50,7 @@ const VirtualIDCard = ({ student, onReset }) => {
                         studentId: student.studentId,
                         major: student.major,
                         imageUrl: imageData,
-                        barcodeUrl: `https://barcodeapi.org/api/128/${student.studentId}`
+                        barcodeUrl: `https://barcodeapi.org/api/128/${student.studentId}?scale=2` // Reduced scale for smaller barcode
                     }
                 }),
             });
@@ -52,8 +67,8 @@ const VirtualIDCard = ({ student, onReset }) => {
         }
     };
 
-    // Generate barcode URL using the student's ID
-    const barcodeUrl = `https://barcodeapi.org/api/128/${student.studentId}`;
+    // Generate barcode URL using the student's ID with reduced scale
+    const barcodeUrl = `https://barcodeapi.org/api/128/${student.studentId}?scale=2`;
 
     return (
         <div className="virtual-id-container">

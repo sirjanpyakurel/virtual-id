@@ -380,7 +380,7 @@ body{
 }
 
 .barcode-container {
-    width: 60%;  /* Reduced from 80% */
+    width: 40%;  /* Reduced from 60% */
     margin: 1rem auto;
     background: white;
     padding: 0.5rem;
@@ -392,6 +392,7 @@ body{
 .barcode-container img {
     max-width: 100%;
     height: auto;
+    display: block;  /* Ensures no extra space */
 }
 
 .card-actions {
