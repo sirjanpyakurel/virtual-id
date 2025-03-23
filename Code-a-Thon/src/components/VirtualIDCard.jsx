@@ -1,66 +1,54 @@
 import React from 'react';
-import tigerLogo from "../assets/tiger.png";
 
 const VirtualIDCard = ({ student, onReset }) => {
     if (!student) return null;
 
     const handleSendEmail = async () => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://virtual-id-backend.onrender.com';
-            console.log('Sending request to:', apiUrl);
-            
-            const response = await fetch(`${apiUrl}/send-id-card`, {
+            const response = await fetch('https://virtual-id-backend.onrender.com/send-id-card', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     email: student.email,
-                    studentData: student
-                })
+                    data: student
+                }),
             });
-
-            console.log('Response status:', response.status);
-            const responseText = await response.text();
-            console.log('Response text:', responseText);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            let data;
-            try {
-                data = JSON.parse(responseText);
-            } catch (e) {
-                console.error('Failed to parse response as JSON:', e);
-                throw new Error('Invalid response from server');
-            }
-
-            alert('ID card sent successfully to your email!');
+            const result = await response.json();
+            alert('ID card sent to your email successfully!');
         } catch (error) {
-            console.error('Error sending ID card:', error);
-            alert(`Failed to send ID card: ${error.message}`);
+            console.error('Error sending email:', error);
+            alert('Failed to send ID card to email. Please try again.');
         }
     };
+
+    // Generate barcode URL using the student's ID
+    const barcodeUrl = `https://barcodeapi.org/api/128/${student.campusId}`;
 
     return (
         <div className="virtual-id-card">
             <div className="id-card-front">
                 <div className="id-card-header">
                     <div className="id-card-logo">
-                        <img src={tigerLogo} alt="TSU Logo" />
+                        <img src="/logo.png" alt="University Logo" />
                         <div className="id-card-title">
-                            <h3>TENNESSEE STATE UNIVERSITY</h3>
-                            <span>Student Identification</span>
+                            <h3>STUDENT ID CARD</h3>
+                            <span>University of Technology</span>
                         </div>
                     </div>
                 </div>
                 <div className="id-card-body">
                     <div className="id-card-photo">
                         <img 
-                            src={student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=003366&color=fff&size=200`}
-                            alt={student.name} 
+                            src={student.photo}
+                            alt="Student"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
                     </div>
                     <div className="id-card-info">
@@ -69,9 +57,11 @@ const VirtualIDCard = ({ student, onReset }) => {
                                 <label>Name</label>
                                 <span>{student.name}</span>
                             </div>
+                        </div>
+                        <div className="info-row">
                             <div className="info-item">
                                 <label>ID Number</label>
-                                <span>{student.studentId}</span>
+                                <span>{student.campusId}</span>
                             </div>
                         </div>
                         <div className="info-row">
@@ -79,41 +69,24 @@ const VirtualIDCard = ({ student, onReset }) => {
                                 <label>Major</label>
                                 <span>{student.major}</span>
                             </div>
-                            <div className="info-item">
-                                <label>Classification</label>
-                                <span>{student.classification}</span>
-                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="id-card-footer">
-                    <div className="validity">
-                        <span>Valid through: 2024-2025</span>
-                    </div>
-                    <div className="signature">
-                        <span>Authorized Signature</span>
-                        <div className="signature-line"></div>
-                    </div>
-                </div>
-            </div>
-            <div className="id-card-back">
                 <div className="barcode-container">
-                    <div className="barcode">
-                        <img 
-                            src={`https://barcode.tec-it.com/barcode.ashx?data=${student.studentId}&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&width=&height=50&minwidth=2`}
-                            alt="Student ID Barcode"
-                        />
-                    </div>
+                    <img 
+                        src={barcodeUrl}
+                        alt="Barcode"
+                        style={{ maxWidth: '100%', height: 'auto' }}
+                    />
                 </div>
-                <div className="magnetic-strip"></div>
-            </div>
-            <div className="card-actions">
-                <button onClick={handleSendEmail} className="form-button send-email-button">
-                    Send to Email
-                </button>
-                <button onClick={onReset} className="form-button reset-button">
-                    Start Over
-                </button>
+                <div className="card-actions">
+                    <button className="form-button" onClick={handleSendEmail}>
+                        Send to Email
+                    </button>
+                    <button className="form-button" onClick={onReset}>
+                        Start Over
+                    </button>
+                </div>
             </div>
         </div>
     );
