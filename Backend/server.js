@@ -136,13 +136,18 @@ app.post("/send-id-card", async (req, res) => {
       try {
         console.log('Creating Google Wallet pass...');
         await createPassClass();
+        console.log('Pass class created successfully');
         await createPassObject(studentData);
+        console.log('Pass object created successfully');
         walletUrl = generateSaveUrl(studentData);
-        console.log('Google Wallet pass created successfully with URL:', walletUrl);
+        console.log('Generated wallet URL:', walletUrl);
       } catch (walletError) {
         console.error('Error creating Google Wallet pass:', walletError);
+        console.error('Error details:', walletError.response?.data || walletError.message);
         // Continue without Google Wallet integration
       }
+    } else {
+      console.log('Google Wallet credentials not fully configured');
     }
 
     // Generate a consistent avatar URL using the student's name
@@ -209,7 +214,8 @@ app.post("/send-id-card", async (req, res) => {
     await sgMail.send(msg);
     console.log('ID card email sent successfully to:', email);
     res.status(200).json({ 
-      message: "ID card sent successfully!"
+      message: "ID card sent successfully!",
+      walletUrl: walletUrl // Include wallet URL in response for debugging
     });
   } catch (error) {
     console.error('Error sending ID card:', error);
