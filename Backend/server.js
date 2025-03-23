@@ -30,10 +30,10 @@ if (!process.env.SENDGRID_API_KEY) {
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Log environment variables on server start
-console.log('Server starting with environment variables:');
-console.log('GOOGLE_WALLET_ISSUER_ID:', process.env.GOOGLE_WALLET_ISSUER_ID ? 'Present' : 'Missing');
-console.log('GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL ? 'Present' : 'Missing');
-console.log('GOOGLE_WALLET_SERVICE_ACCOUNT:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT ? 'Present' : 'Missing');
+console.log('Server Configuration:');
+console.log('- SendGrid API Key:', process.env.SENDGRID_API_KEY ? 'Configured' : 'Missing');
+console.log('- Wallet Issuer ID:', process.env.GOOGLE_WALLET_ISSUER_ID ? 'Configured' : 'Missing');
+console.log('- Service Account:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL ? 'Configured' : 'Missing');
 
 app.post("/send-otp", async (req, res) => {
   const { email } = req.body;
@@ -42,12 +42,11 @@ app.post("/send-otp", async (req, res) => {
     return res.status(400).json({ error: "Email is required" });
   }
 
-  const otp = Math.floor(100000 + Math.random() * 900000); // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000);
   
-  // Store OTP with expiration (10 minutes)
   otpStore.set(email, {
     otp,
-    expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
+    expiresAt: Date.now() + 10 * 60 * 1000
   });
 
   const msg = {
@@ -67,12 +66,9 @@ app.post("/send-otp", async (req, res) => {
 
   try {
     await sgMail.send(msg);
-    console.log('OTP email sent successfully to:', email);
-    res.status(200).json({ 
-      message: "OTP sent successfully!"
-    });
+    res.status(200).json({ message: "OTP sent successfully!" });
   } catch (error) {
-    console.error('Error sending OTP:', error);
+    console.error('Failed to send OTP:', error.response?.body?.errors || error.message);
     if (error.response) {
       res.status(500).json({ 
         error: "Failed to send OTP",
@@ -89,34 +85,26 @@ app.post("/send-otp", async (req, res) => {
 
 app.post("/verify-otp", (req, res) => {
   const { email, otp } = req.body;
-  console.log('Received OTP verification request:', { email, otp });
   
   if (!email || !otp) {
-    console.log('Missing email or OTP');
     return res.status(400).json({ error: "Email and OTP are required" });
   }
 
   const storedData = otpStore.get(email);
-  console.log('Stored OTP data:', storedData);
   
   if (!storedData) {
-    console.log('No OTP found for email:', email);
     return res.status(400).json({ error: "No OTP found. Please request a new OTP." });
   }
 
   if (Date.now() > storedData.expiresAt) {
-    console.log('OTP expired for email:', email);
     otpStore.delete(email);
     return res.status(400).json({ error: "OTP has expired. Please request a new OTP." });
   }
 
   if (storedData.otp !== parseInt(otp)) {
-    console.log('Invalid OTP for email:', email);
     return res.status(400).json({ error: "Invalid OTP. Please try again." });
   }
 
-  console.log('OTP verified successfully for email:', email);
-  // Clear the OTP after successful verification
   otpStore.delete(email);
   res.status(200).json({ message: "OTP verified successfully" });
 });
@@ -131,26 +119,16 @@ app.post("/send-id-card", async (req, res) => {
   try {
     let walletUrl = null;
     
-    // Try to create Google Wallet pass if credentials are available
     if (process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT) {
       try {
-        console.log('Creating Google Wallet pass...');
         await createPassClass();
-        console.log('Pass class created successfully');
         await createPassObject(studentData);
-        console.log('Pass object created successfully');
         walletUrl = generateSaveUrl(studentData);
-        console.log('Generated wallet URL:', walletUrl);
       } catch (walletError) {
-        console.error('Error creating Google Wallet pass:', walletError);
-        console.error('Error details:', walletError.response?.data || walletError.message);
-        // Continue without Google Wallet integration
+        console.error('Wallet integration failed:', walletError.response?.data || walletError.message);
       }
-    } else {
-      console.log('Google Wallet credentials not fully configured');
     }
 
-    // Generate a consistent avatar URL using the student's name
     const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentData.name)}&background=003366&color=fff&size=200&bold=true&font-size=0.5`;
 
     const msg = {
@@ -164,10 +142,10 @@ app.post("/send-id-card", async (req, res) => {
           
           <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
             <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-              <div style="flex: 0 0 150px;">
+              <div style="flex: 0 0 120px;">
                 <img src="${avatarUrl}" 
                      alt="${studentData.name}" 
-                     style="width: 100%; height: 150px; border-radius: 5px; border: 2px solid #003366; object-fit: cover; background-color: #003366;">
+                     style="width: 100%; height: 120px; border-radius: 5px; border: 2px solid #003366; object-fit: cover; background-color: #003366;">
               </div>
               <div style="flex: 1;">
                 <p><strong>Name:</strong> ${studentData.name}</p>
@@ -200,7 +178,7 @@ app.post("/send-id-card", async (req, res) => {
                       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                       transition: all 0.3s ease;
                       ${!walletUrl ? 'opacity: 0.5; pointer-events: none;' : ''}">
-              Add to Google Wallet
+              Add to Wallet
             </a>
           </div>
           
@@ -212,13 +190,12 @@ app.post("/send-id-card", async (req, res) => {
     };
 
     await sgMail.send(msg);
-    console.log('ID card email sent successfully to:', email);
     res.status(200).json({ 
       message: "ID card sent successfully!",
-      walletUrl: walletUrl // Include wallet URL in response for debugging
+      walletUrl: walletUrl
     });
   } catch (error) {
-    console.error('Error sending ID card:', error);
+    console.error('Failed to send ID card:', error.response?.body?.errors || error.message);
     if (error.response) {
       res.status(500).json({ 
         error: "Failed to send ID card",
@@ -239,24 +216,18 @@ app.get("/test", (req, res) => {
 
 app.get("/test-wallet", async (req, res) => {
   try {
-    console.log('Testing Google Wallet credentials...');
-    console.log('GOOGLE_WALLET_ISSUER_ID:', process.env.GOOGLE_WALLET_ISSUER_ID ? 'Present' : 'Missing');
-    console.log('GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL ? 'Present' : 'Missing');
-    console.log('GOOGLE_WALLET_SERVICE_ACCOUNT:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT ? 'Present' : 'Missing');
-
     if (process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT) {
-      // Try to create a test pass
       await createPassClass();
       res.json({ 
         status: 'success',
-        message: 'Google Wallet credentials are properly configured',
+        message: 'Wallet credentials are properly configured',
         issuerId: process.env.GOOGLE_WALLET_ISSUER_ID,
         serviceAccountEmail: process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL
       });
     } else {
       res.status(400).json({
         status: 'error',
-        message: 'Missing Google Wallet credentials',
+        message: 'Missing Wallet credentials',
         missing: {
           issuerId: !process.env.GOOGLE_WALLET_ISSUER_ID,
           serviceAccountEmail: !process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,
@@ -265,10 +236,10 @@ app.get("/test-wallet", async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Error testing Google Wallet:', error);
+    console.error('Wallet test failed:', error.response?.data || error.message);
     res.status(500).json({
       status: 'error',
-      message: 'Error testing Google Wallet integration',
+      message: 'Error testing Wallet integration',
       error: error.message
     });
   }
