@@ -137,14 +137,31 @@ app.post("/send-id-card", async (req, res) => {
           </div>
           
           <div style="text-align: center; margin: 20px 0;">
-            <img src="https://barcode.tec-it.com/barcode.ashx?data=${studentData.studentId}&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&width=&height=50&minwidth=2" 
+            <img src="${studentData.barcodeUrl}" 
                  alt="Student ID Barcode" 
-                 style="max-width: 100%; height: auto;">
+                 style="max-width: 60%; height: auto;">
           </div>
           
           <div style="text-align: center; color: #666; font-size: 0.9em;">
             <p>Valid through: 2024-2025</p>
           </div>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="${studentData.walletUrl}" 
+             style="display: inline-block; 
+                    background-color: #4a148c; 
+                    color: white; 
+                    padding: 12px 24px; 
+                    text-decoration: none; 
+                    border-radius: 8px; 
+                    font-weight: bold;
+                    font-family: Arial, sans-serif;
+                    margin-top: 20px;">
+            <img src="https://developers.google.com/static/wallet/images/passes/add-to-google-wallet-button.png" 
+                 alt="Add to Google Wallet" 
+                 style="height: 40px; width: auto;">
+          </a>
         </div>
         
         <p style="color: #666; font-size: 0.9em; text-align: center;">
