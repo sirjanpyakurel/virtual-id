@@ -145,6 +145,9 @@ app.post("/send-id-card", async (req, res) => {
       }
     }
 
+    // Generate a consistent avatar URL using the student's name
+    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentData.name)}&background=003366&color=fff&size=200&bold=true&font-size=0.5`;
+
     const msg = {
       to: email,
       from: process.env.SENDGRID_FROM_EMAIL || 'your-verified-sender@example.com',
@@ -157,9 +160,9 @@ app.post("/send-id-card", async (req, res) => {
           <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
             <div style="display: flex; gap: 20px; margin-bottom: 20px;">
               <div style="flex: 0 0 150px;">
-                <img src="${studentData.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentData.name)}&background=003366&color=fff&size=200`}" 
+                <img src="${avatarUrl}" 
                      alt="${studentData.name}" 
-                     style="width: 100%; border-radius: 5px; border: 2px solid #003366;">
+                     style="width: 100%; height: 150px; border-radius: 5px; border: 2px solid #003366; object-fit: cover; background-color: #003366;">
               </div>
               <div style="flex: 1;">
                 <p><strong>Name:</strong> ${studentData.name}</p>
