@@ -183,11 +183,16 @@ app.post("/send-id-card", async (req, res) => {
             <a href="${walletUrl || '#'}" 
                style="display: inline-block; 
                       text-decoration: none;
+                      background-color: #4285f4;
+                      color: white;
+                      padding: 12px 24px;
+                      border-radius: 8px;
+                      font-weight: 500;
+                      font-size: 16px;
+                      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                      transition: all 0.3s ease;
                       ${!walletUrl ? 'opacity: 0.5; pointer-events: none;' : ''}">
-              <img src="https://developers.google.com/static/wallet/images/passes/add-to-google-wallet-button.png" 
-                   alt="Add to Google Wallet" 
-                   style="height: 40px; width: auto;">
-              ${!walletUrl ? '<div style="color: #666; font-size: 0.8em; margin-top: 5px;">(Coming Soon)</div>' : ''}
+              Add to Google Wallet
             </a>
           </div>
           
