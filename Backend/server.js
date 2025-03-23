@@ -236,5 +236,42 @@ app.get("/test", (req, res) => {
   res.json({ message: "Server is running!" });
 });
 
+app.get("/test-wallet", async (req, res) => {
+  try {
+    console.log('Testing Google Wallet credentials...');
+    console.log('GOOGLE_WALLET_ISSUER_ID:', process.env.GOOGLE_WALLET_ISSUER_ID ? 'Present' : 'Missing');
+    console.log('GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL ? 'Present' : 'Missing');
+    console.log('GOOGLE_WALLET_SERVICE_ACCOUNT:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT ? 'Present' : 'Missing');
+
+    if (process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT) {
+      // Try to create a test pass
+      await createPassClass();
+      res.json({ 
+        status: 'success',
+        message: 'Google Wallet credentials are properly configured',
+        issuerId: process.env.GOOGLE_WALLET_ISSUER_ID,
+        serviceAccountEmail: process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL
+      });
+    } else {
+      res.status(400).json({
+        status: 'error',
+        message: 'Missing Google Wallet credentials',
+        missing: {
+          issuerId: !process.env.GOOGLE_WALLET_ISSUER_ID,
+          serviceAccountEmail: !process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,
+          serviceAccount: !process.env.GOOGLE_WALLET_SERVICE_ACCOUNT
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error testing Google Wallet:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Error testing Google Wallet integration',
+      error: error.message
+    });
+  }
+});
+
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
