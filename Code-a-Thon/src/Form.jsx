@@ -15,6 +15,8 @@ const Form = () => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isValidated, setIsValidated] = useState(false);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [isInfoConfirmed, setIsInfoConfirmed] = useState(false);
 
     const findStudent = (email, campusId) => {
         return students.find(s => 
@@ -84,6 +86,7 @@ const Form = () => {
                 // Only proceed if we have both successful verification and valid student data
                 if (student && data.message === "OTP verified successfully") {
                     setIsValidated(true);
+                    setShowConfirmation(true);
                 } else {
                     throw new Error('Verification failed. Please try again.');
                 }
@@ -111,13 +114,67 @@ const Form = () => {
         setStudent(null);
         setError('');
         setIsValidated(false);
+        setShowConfirmation(false);
+        setIsInfoConfirmed(false);
     };
+
+    const handleConfirmation = (isCorrect) => {
+        if (isCorrect) {
+            setIsInfoConfirmed(true);
+        } else {
+            setError('Your information appears to be incorrect. Please visit the Administration Office (Room 105, Student Center) to update your records.');
+            setShowConfirmation(false);
+        }
+    };
+
+    const renderStudentInfo = () => (
+        <div className="student-info-confirmation">
+            <h3>Please verify your information:</h3>
+            <div className="info-container">
+                <div className="info-row">
+                    <label>Name:</label>
+                    <span>{student.name}</span>
+                </div>
+                <div className="info-row">
+                    <label>Student ID:</label>
+                    <span>{student.studentId}</span>
+                </div>
+                <div className="info-row">
+                    <label>Email:</label>
+                    <span>{student.email}</span>
+                </div>
+                <div className="info-row">
+                    <label>Major:</label>
+                    <span>{student.major}</span>
+                </div>
+                <div className="info-row">
+                    <label>Classification:</label>
+                    <span>{student.classification}</span>
+                </div>
+            </div>
+            <div className="confirmation-buttons">
+                <button 
+                    onClick={() => handleConfirmation(true)} 
+                    className="form-button confirm-button"
+                >
+                    Yes, Information is Correct
+                </button>
+                <button 
+                    onClick={() => handleConfirmation(false)} 
+                    className="form-button deny-button"
+                >
+                    No, Information is Incorrect
+                </button>
+            </div>
+        </div>
+    );
 
     return (
         <div className="form-container">
-            {!isValidated ? (
-                <div className="form-header">
-                    <img src={tigerLogo} alt="tiger" className="form-image" />
+            <div className="form-header">
+                <img src={tigerLogo} alt="tiger" className="form-image" />
+                
+                {!showConfirmation ? (
                     <div className="form-body">
                         <form onSubmit={handleSubmit}>
                             <input
@@ -158,12 +215,22 @@ const Form = () => {
                         </form>
                         {error && <p className="error-message">{error}</p>}
                     </div>
-                </div>
-            ) : (
-                <div className="student-details">
-                    <VirtualIDCard student={student} onReset={handleReset} />
-                </div>
-            )}
+                ) : (
+                    <div className="verification-success">
+                        {!isInfoConfirmed ? (
+                            renderStudentInfo()
+                        ) : (
+                            <>
+                                <div className="success-message">Information verified successfully!</div>
+                                <VirtualIDCard student={student} onReset={handleReset} />
+                                <button onClick={handleReset} className="form-button reset-button">
+                                    Start Over
+                                </button>
+                            </>
+                        )}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

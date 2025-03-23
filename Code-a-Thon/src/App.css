@@ -532,46 +532,86 @@ body{
 }
 
 .student-info-confirmation {
-    background-color: white;
-    border-radius: 10px;
-    padding: 25px;
-    margin: 20px auto;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 90%;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     max-width: 500px;
+    margin: 0 auto;
 }
 
 .student-info-confirmation h3 {
     color: #003366;
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
     text-align: center;
-    font-size: 1.5rem;
+}
+
+.info-container {
+    margin-bottom: 2rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row label {
     font-weight: bold;
+    color: #003366;
+}
+
+.info-row span {
+    color: #333;
 }
 
 .confirmation-buttons {
     display: flex;
+    gap: 1rem;
     justify-content: center;
-    gap: 15px;
-    margin-top: 25px;
 }
 
-.form-button.confirm-button {
+.confirm-button {
     background-color: #28a745;
-    margin: 0;
+    color: white;
 }
 
-.form-button.confirm-button:hover {
+.confirm-button:hover {
     background-color: #218838;
 }
 
-.form-button.deny-button {
+.deny-button {
     background-color: #dc3545;
-    margin: 0;
+    color: white;
 }
 
-.form-button.deny-button:hover {
+.deny-button:hover {
     background-color: #c82333;
+}
+
+.verification-success {
+    text-align: center;
+}
+
+.success-message {
+    color: #28a745;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.reset-button {
+    margin-top: 1rem;
+    background-color: #6c757d;
+    color: white;
+}
+
+.reset-button:hover {
+    background-color: #5a6268;
 }
 
 @media screen and (max-width: 768px) {
