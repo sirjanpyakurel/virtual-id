@@ -29,6 +29,12 @@ if (!process.env.SENDGRID_API_KEY) {
 // Initialize SendGrid with API key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+// Log environment variables on server start
+console.log('Server starting with environment variables:');
+console.log('GOOGLE_WALLET_ISSUER_ID:', process.env.GOOGLE_WALLET_ISSUER_ID ? 'Present' : 'Missing');
+console.log('GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL ? 'Present' : 'Missing');
+console.log('GOOGLE_WALLET_SERVICE_ACCOUNT:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT ? 'Present' : 'Missing');
+
 app.post("/send-otp", async (req, res) => {
   const { email } = req.body;
   
@@ -129,21 +135,27 @@ app.post("/send-id-card", async (req, res) => {
     console.log('Checking Google Wallet credentials...');
     console.log('GOOGLE_WALLET_ISSUER_ID:', process.env.GOOGLE_WALLET_ISSUER_ID ? 'Present' : 'Missing');
     console.log('GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL ? 'Present' : 'Missing');
+    console.log('GOOGLE_WALLET_SERVICE_ACCOUNT:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT ? 'Present' : 'Missing');
     
     // Only try to create Google Wallet pass if credentials are available
-    if (process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL) {
+    if (process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT) {
       try {
         console.log('Creating Google Wallet pass...');
         await createPassClass();
         await createPassObject(studentData);
         walletUrl = generateSaveUrl(studentData);
-        console.log('Google Wallet pass created successfully');
+        console.log('Google Wallet pass created successfully with URL:', walletUrl);
       } catch (walletError) {
         console.error('Error creating Google Wallet pass:', walletError);
         // Continue without Google Wallet integration
       }
     } else {
       console.log('Google Wallet credentials not found, skipping pass creation');
+      console.log('Missing credentials:', {
+        issuerId: !process.env.GOOGLE_WALLET_ISSUER_ID,
+        serviceAccountEmail: !process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,
+        serviceAccount: !process.env.GOOGLE_WALLET_SERVICE_ACCOUNT
+      });
     }
 
     const msg = {
