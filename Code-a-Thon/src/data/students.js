@@ -146,7 +146,7 @@ export const students = [
     },
     {
         name: "John Smith",
-        studentId: "T12345678",
+        studentId: "T12345999",
         email: "storybig23@gmail.com",
         major: "Computer Science",
         classification: "Senior",
