@@ -29,53 +29,65 @@ try {
 // Create a Generic pass class for student ID
 async function createPassClass() {
   try {
-    console.log('Getting auth client...');
     const client = await auth.getClient();
-    console.log('Auth client obtained successfully');
+    console.log('Checking if pass class exists...');
 
-    const genericClass = {
-      id: `${ISSUER_ID}.student_id_class`,
-      classTemplate: {
-        cardTitle: {
-          defaultValue: {
-            language: 'en-US',
-            value: 'Tennessee State University'
+    // First try to get the existing class
+    try {
+      const response = await client.request({
+        url: `https://walletobjects.googleapis.com/walletobjects/v1/genericClass/${ISSUER_ID}.student_id_class`,
+        method: 'GET'
+      });
+      console.log('Pass class already exists');
+      return response.data;
+    } catch (error) {
+      // If class doesn't exist (404), create it
+      if (error.response?.status === 404) {
+        console.log('Pass class not found, creating new class...');
+        
+        const genericClass = {
+          id: `${ISSUER_ID}.student_id_class`,
+          classTemplate: {
+            cardTitle: {
+              defaultValue: {
+                language: 'en-US',
+                value: 'Tennessee State University'
+              }
+            },
+            subheader: {
+              defaultValue: {
+                language: 'en-US',
+                value: 'Student ID Card'
+              }
+            },
+            logo: {
+              sourceUri: {
+                uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
+              }
+            },
+            hexBackgroundColor: '#003366',
+            heroImage: {
+              sourceUri: {
+                uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
+              }
+            }
           }
-        },
-        subheader: {
-          defaultValue: {
-            language: 'en-US',
-            value: 'Student ID Card'
-          }
-        },
-        logo: {
-          sourceUri: {
-            uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
-          }
-        },
-        hexBackgroundColor: '#003366',
-        heroImage: {
-          sourceUri: {
-            uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
-          }
-        }
+        };
+
+        const response = await client.request({
+          url: 'https://walletobjects.googleapis.com/walletobjects/v1/genericClass',
+          method: 'POST',
+          data: genericClass
+        });
+        console.log('Pass class created successfully');
+        return response.data;
+      } else {
+        // If it's not a 404 error, throw the error
+        throw error;
       }
-    };
-
-    console.log('Making request to create pass class:', genericClass.id);
-    const response = await client.request({
-      url: 'https://walletobjects.googleapis.com/walletobjects/v1/genericClass',
-      method: 'POST',
-      data: genericClass
-    });
-    console.log('Pass class created successfully:', response.data.id);
-    return response.data;
+    }
   } catch (error) {
-    console.error('Error creating pass class:', {
-      error: error.message,
-      response: error.response?.data,
-      stack: error.stack
-    });
+    console.error('Error with pass class:', error.response?.data || error.message);
     throw error;
   }
 }
@@ -83,101 +95,96 @@ async function createPassClass() {
 // Create a Generic pass object for a specific student
 async function createPassObject(student) {
   try {
-    console.log('Getting auth client for pass object...');
     const client = await auth.getClient();
-    console.log('Auth client obtained for pass object');
+    console.log('Creating pass object...');
 
     const objectId = `${ISSUER_ID}.student_id_${student.studentId}`;
-    console.log('Creating pass object with ID:', objectId);
-
-    const genericObject = {
-      id: objectId,
-      classId: `${ISSUER_ID}.student_id_class`,
-      genericType: 'GENERIC_TYPE_UNSPECIFIED',
-      cardTitle: {
-        defaultValue: {
-          language: 'en-US',
-          value: 'Tennessee State University'
-        }
-      },
-      subheader: {
-        defaultValue: {
-          language: 'en-US',
-          value: 'Student ID Card'
-        }
-      },
-      header: {
-        defaultValue: {
-          language: 'en-US',
-          value: student.name
-        }
-      },
-      logo: {
-        sourceUri: {
-          uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
-        }
-      },
-      heroImage: {
-        sourceUri: {
-          uri: student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=003366&color=fff&size=400&bold=true`
-        }
-      },
-      barcode: {
-        type: 'CODE_128',
-        value: student.studentId,
-        alternateText: student.studentId
-      },
-      hexBackgroundColor: '#003366',
-      textModulesData: [
-        {
-          header: 'Student ID',
-          body: student.studentId,
-          id: 'student_id'
-        },
-        {
-          header: 'Major',
-          body: student.major,
-          id: 'major'
-        },
-        {
-          header: 'Classification',
-          body: student.classification || 'Student',
-          id: 'classification'
-        }
-      ],
-      linksModuleData: {
-        uris: [
-          {
-            uri: 'https://www.tnstate.edu',
-            description: 'Tennessee State University Website',
-            id: 'official_site'
+    
+    // First check if the object already exists
+    try {
+      const existingObject = await client.request({
+        url: `https://walletobjects.googleapis.com/walletobjects/v1/genericObject/${objectId}`,
+        method: 'GET'
+      });
+      console.log('Pass object already exists');
+      return existingObject.data;
+    } catch (error) {
+      // If object doesn't exist (404), create it
+      if (error.response?.status === 404) {
+        const genericObject = {
+          id: objectId,
+          classId: `${ISSUER_ID}.student_id_class`,
+          genericType: 'GENERIC_TYPE_UNSPECIFIED',
+          cardTitle: {
+            defaultValue: {
+              language: 'en-US',
+              value: 'Tennessee State University'
+            }
+          },
+          subheader: {
+            defaultValue: {
+              language: 'en-US',
+              value: 'Student ID Card'
+            }
+          },
+          header: {
+            defaultValue: {
+              language: 'en-US',
+              value: student.name
+            }
+          },
+          logo: {
+            sourceUri: {
+              uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
+            }
+          },
+          heroImage: {
+            sourceUri: {
+              uri: student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=003366&color=fff&size=400&bold=true`
+            }
+          },
+          barcode: {
+            type: 'CODE_128',
+            value: student.studentId,
+            alternateText: student.studentId
+          },
+          hexBackgroundColor: '#003366',
+          textModulesData: [
+            {
+              header: 'Student ID',
+              body: student.studentId,
+              id: 'student_id'
+            },
+            {
+              header: 'Major',
+              body: student.major,
+              id: 'major'
+            }
+          ],
+          validTimeInterval: {
+            start: {
+              date: '2024-01-01T00:00:00Z'
+            },
+            end: {
+              date: '2025-12-31T23:59:59Z'
+            }
           }
-        ]
-      },
-      validTimeInterval: {
-        start: {
-          date: '2024-01-01T00:00:00Z'
-        },
-        end: {
-          date: '2025-12-31T23:59:59Z'
-        }
-      }
-    };
+        };
 
-    console.log('Making request to create pass object...');
-    const response = await client.request({
-      url: 'https://walletobjects.googleapis.com/walletobjects/v1/genericObject',
-      method: 'POST',
-      data: genericObject
-    });
-    console.log('Pass object created successfully:', response.data.id);
-    return response.data;
+        const response = await client.request({
+          url: 'https://walletobjects.googleapis.com/walletobjects/v1/genericObject',
+          method: 'POST',
+          data: genericObject
+        });
+        console.log('Pass object created successfully');
+        return response.data;
+      } else {
+        // If it's not a 404 error, throw the error
+        throw error;
+      }
+    }
   } catch (error) {
-    console.error('Error creating pass object:', {
-      error: error.message,
-      response: error.response?.data,
-      stack: error.stack
-    });
+    console.error('Error creating pass object:', error.response?.data || error.message);
     throw error;
   }
 }
@@ -185,11 +192,10 @@ async function createPassObject(student) {
 // Generate a signed JWT for the pass
 function generateSignedJwt(student) {
   try {
-    console.log('Generating JWT for student:', student.studentId);
     const serviceAccount = JSON.parse(process.env.GOOGLE_WALLET_SERVICE_ACCOUNT);
     
     const claims = {
-      iss: serviceAccount.client_email, // Use client_email from service account
+      iss: serviceAccount.client_email,
       aud: 'google',
       origins: ['https://virtual-id-frontend.onrender.com'],
       typ: 'savetowallet',
@@ -201,19 +207,10 @@ function generateSignedJwt(student) {
       }
     };
 
-    console.log('JWT claims prepared:', {
-      issuer: claims.iss,
-      objectId: claims.payload.genericObjects[0].id
-    });
-
     const token = jwt.sign(claims, serviceAccount.private_key, { algorithm: 'RS256' });
-    console.log('JWT generated successfully');
     return token;
   } catch (error) {
-    console.error('Error generating JWT:', {
-      error: error.message,
-      stack: error.stack
-    });
+    console.error('Error generating JWT:', error.message);
     throw error;
   }
 }
@@ -221,16 +218,11 @@ function generateSignedJwt(student) {
 // Generate the save URL for Google Wallet
 function generateSaveUrl(student) {
   try {
-    console.log('Generating save URL for student:', student.studentId);
     const token = generateSignedJwt(student);
     const url = `https://pay.google.com/gp/v/save/${token}`;
-    console.log('Save URL generated successfully');
     return url;
   } catch (error) {
-    console.error('Error generating save URL:', {
-      error: error.message,
-      stack: error.stack
-    });
+    console.error('Error generating save URL:', error.message);
     throw error;
   }
 }

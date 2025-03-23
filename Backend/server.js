@@ -162,28 +162,28 @@ app.post("/send-id-card", async (req, res) => {
           <h2 style="color: #003366; text-align: center;">Tennessee State University</h2>
           <h3 style="color: #003366; text-align: center;">Student ID Card</h3>
           
-          <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-              <div style="flex: 0 0 120px;">
+              <div style="flex: 0 0 100px;">
                 <img src="${avatarUrl}" 
                      alt="${studentData.name}" 
-                     style="width: 100%; height: 120px; border-radius: 5px; border: 2px solid #003366; object-fit: cover; background-color: #003366;">
+                     style="width: 100%; height: 100px; border-radius: 5px; border: 2px solid #003366; object-fit: cover; background-color: #003366;">
               </div>
               <div style="flex: 1;">
-                <p><strong>Name:</strong> ${studentData.name}</p>
-                <p><strong>ID Number:</strong> ${studentData.studentId}</p>
-                <p><strong>Major:</strong> ${studentData.major}</p>
+                <p style="margin: 0 0 8px 0; font-size: 16px;"><strong style="color: #003366;">Name:</strong> ${studentData.name}</p>
+                <p style="margin: 0 0 8px 0; font-size: 16px;"><strong style="color: #003366;">ID Number:</strong> ${studentData.studentId}</p>
+                <p style="margin: 0; font-size: 16px;"><strong style="color: #003366;">Major:</strong> ${studentData.major}</p>
               </div>
             </div>
             
-            <div style="text-align: center; margin: 20px 0;">
+            <div style="text-align: center; margin: 20px 0; padding: 10px; background: white; border-radius: 5px;">
               <img src="${studentData.barcodeUrl}" 
                    alt="Student ID Barcode" 
-                   style="max-width: 60%; height: auto;">
+                   style="max-width: 50%; height: auto;">
             </div>
             
             <div style="text-align: center; color: #666; font-size: 0.9em;">
-              <p>Valid through: 2024-2025</p>
+              <p style="margin: 0;">Valid through: 2024-2025</p>
             </div>
           </div>
           
@@ -193,21 +193,18 @@ app.post("/send-id-card", async (req, res) => {
                       text-decoration: none;
                       background-color: ${walletUrl ? '#4285f4' : '#9e9e9e'};
                       color: white;
-                      padding: 14px 28px;
+                      padding: 12px 24px;
                       border-radius: 8px;
-                      font-weight: 600;
+                      font-weight: 500;
                       font-size: 16px;
-                      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                       transition: all 0.3s ease;
-                      ${!walletUrl ? 'cursor: not-allowed; opacity: 0.8;' : 'hover: { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }'}">
-              <img src="https://fonts.gstatic.com/s/i/productlogos/wallet/v7/192px.svg" 
-                   alt="Google Wallet" 
-                   style="height: 20px; vertical-align: middle; margin-right: 8px;">
-              Add to Google Wallet ${!walletUrl ? '(Gmail Required)' : ''}
+                      ${!walletUrl ? 'cursor: not-allowed; opacity: 0.8;' : ''}">
+              Add to Wallet
             </a>
             ${!isGmail ? `
-              <p style="color: #666; font-style: italic; margin-top: 12px; font-size: 0.9em;">
-                Note: Google Wallet feature requires a Gmail account.
+              <p style="color: #666; font-style: italic; margin-top: 8px; font-size: 0.9em;">
+                Note: Wallet feature requires a Gmail account
               </p>
             ` : ''}
           </div>
