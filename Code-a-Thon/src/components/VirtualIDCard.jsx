@@ -6,6 +6,9 @@ const VirtualIDCard = ({ student, onReset }) => {
 
     const handleSendEmail = async () => {
         try {
+            // Get the image URL or generate avatar URL
+            const imageUrl = student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=ffffff&color=4a148c&size=200`;
+
             const response = await fetch('https://virtual-id-backend.onrender.com/send-id-card', {
                 method: 'POST',
                 headers: {
@@ -17,7 +20,8 @@ const VirtualIDCard = ({ student, onReset }) => {
                         name: student.name,
                         studentId: student.studentId,
                         major: student.major,
-                        imageUrl: student.imageUrl
+                        imageUrl: imageUrl,
+                        barcodeUrl: `https://barcodeapi.org/api/128/${student.studentId}`
                     }
                 }),
             });
