@@ -6,7 +6,7 @@ const ISSUER_ID = process.env.GOOGLE_WALLET_ISSUER_ID;
 
 // Initialize Google Auth client with service account credentials
 const auth = new GoogleAuth({
-  keyFile: './service-account.json', // Path to your service account key file
+  credentials: JSON.parse(process.env.GOOGLE_WALLET_SERVICE_ACCOUNT),
   scopes: ['https://www.googleapis.com/auth/wallet_object.issuer']
 });
 
@@ -126,6 +126,7 @@ async function createPassObject(student) {
 
 // Generate a signed JWT for the pass
 function generateSignedJwt(student) {
+  const serviceAccount = JSON.parse(process.env.GOOGLE_WALLET_SERVICE_ACCOUNT);
   const claims = {
     iss: process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,
     aud: 'google',
@@ -139,8 +140,7 @@ function generateSignedJwt(student) {
     }
   };
 
-  const privateKey = require('./service-account.json').private_key;
-  return jwt.sign(claims, privateKey, { algorithm: 'RS256' });
+  return jwt.sign(claims, serviceAccount.private_key, { algorithm: 'RS256' });
 }
 
 // Generate the save URL for Google Wallet
