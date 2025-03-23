@@ -1,4 +1,5 @@
 import React from 'react';
+import tigerLogo from "../assets/tiger.png";
 
 const VirtualIDCard = ({ student, onReset }) => {
     if (!student) return null;
@@ -29,25 +30,26 @@ const VirtualIDCard = ({ student, onReset }) => {
     };
 
     // Generate barcode URL using the student's ID
-    const barcodeUrl = `https://barcodeapi.org/api/128/${student.campusId}`;
+    const barcodeUrl = `https://barcodeapi.org/api/128/${student.studentId}`;
 
     return (
         <div className="virtual-id-card">
             <div className="id-card-front">
                 <div className="id-card-header">
                     <div className="id-card-logo">
-                        <img src="/logo.png" alt="University Logo" />
+                        <img src={tigerLogo} alt="TSU Logo" />
                         <div className="id-card-title">
-                            <h3>STUDENT ID CARD</h3>
-                            <span>University of Technology</span>
+                            <h3>TENNESSEE STATE UNIVERSITY</h3>
+                            <span>Student Identification</span>
                         </div>
                     </div>
                 </div>
+
                 <div className="id-card-body">
                     <div className="id-card-photo">
                         <img 
-                            src={student.photo}
-                            alt="Student"
+                            src={student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=003366&color=fff&size=200`}
+                            alt={student.name}
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
                     </div>
@@ -57,11 +59,9 @@ const VirtualIDCard = ({ student, onReset }) => {
                                 <label>Name</label>
                                 <span>{student.name}</span>
                             </div>
-                        </div>
-                        <div className="info-row">
                             <div className="info-item">
                                 <label>ID Number</label>
-                                <span>{student.campusId}</span>
+                                <span>{student.studentId}</span>
                             </div>
                         </div>
                         <div className="info-row">
@@ -69,9 +69,14 @@ const VirtualIDCard = ({ student, onReset }) => {
                                 <label>Major</label>
                                 <span>{student.major}</span>
                             </div>
+                            <div className="info-item">
+                                <label>Classification</label>
+                                <span>{student.classification}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <div className="barcode-container">
                     <img 
                         src={barcodeUrl}
@@ -79,11 +84,12 @@ const VirtualIDCard = ({ student, onReset }) => {
                         style={{ maxWidth: '100%', height: 'auto' }}
                     />
                 </div>
+
                 <div className="card-actions">
-                    <button className="form-button" onClick={handleSendEmail}>
+                    <button className="form-button send-email-button" onClick={handleSendEmail}>
                         Send to Email
                     </button>
-                    <button className="form-button" onClick={onReset}>
+                    <button className="form-button reset-button" onClick={onReset}>
                         Start Over
                     </button>
                 </div>
