@@ -57,7 +57,18 @@ async function createPassClass() {
             subheader: {
               defaultValue: {
                 language: 'en-US',
-                value: 'Student ID Card'
+                value: 'Student ID'
+              }
+            },
+            logo: {
+              sourceUri: {
+                uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
+              },
+              contentDescription: {
+                defaultValue: {
+                  language: 'en-US',
+                  value: 'TSU Logo'
+                }
               }
             },
             hexBackgroundColor: '#003366'
@@ -101,6 +112,9 @@ async function createPassObject(student) {
     } catch (error) {
       // If object doesn't exist (404), create it
       if (error.response?.status === 404) {
+        // Generate a PNG avatar URL using UI Avatars
+        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=003366&color=fff&size=400&bold=true&format=png`;
+
         const genericObject = {
           id: objectId,
           classId: `${ISSUER_ID}.student_id_class`,
@@ -114,13 +128,29 @@ async function createPassObject(student) {
           subheader: {
             defaultValue: {
               language: 'en-US',
-              value: 'Student ID Card'
+              value: 'Student ID'
             }
           },
           header: {
             defaultValue: {
               language: 'en-US',
               value: student.name
+            }
+          },
+          logo: {
+            sourceUri: {
+              uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
+            }
+          },
+          heroImage: {
+            sourceUri: {
+              uri: avatarUrl
+            },
+            contentDescription: {
+              defaultValue: {
+                language: 'en-US',
+                value: 'Student Photo'
+              }
             }
           },
           barcode: {
@@ -131,9 +161,14 @@ async function createPassObject(student) {
           hexBackgroundColor: '#003366',
           textModulesData: [
             {
-              header: 'Student ID',
+              header: 'Campus ID',
               body: student.studentId,
               id: 'student_id'
+            },
+            {
+              header: 'Name',
+              body: student.name,
+              id: 'name'
             },
             {
               header: 'Major',
