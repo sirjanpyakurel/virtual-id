@@ -105,6 +105,77 @@ app.post("/verify-otp", (req, res) => {
   res.status(200).json({ message: "OTP verified successfully" });
 });
 
+app.post("/send-id-card", async (req, res) => {
+  const { email, studentData } = req.body;
+  
+  if (!email || !studentData) {
+    return res.status(400).json({ error: "Email and student data are required" });
+  }
+
+  const msg = {
+    to: email,
+    from: process.env.SENDGRID_FROM_EMAIL || 'your-verified-sender@example.com',
+    subject: 'Your Tennessee State University ID Card',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #003366; text-align: center;">Tennessee State University</h2>
+        <h3 style="color: #003366; text-align: center;">Student ID Card</h3>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+            <div style="flex: 0 0 150px;">
+              <img src="${studentData.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentData.name)}&background=003366&color=fff&size=200`}" 
+                   alt="${studentData.name}" 
+                   style="width: 100%; border-radius: 5px; border: 2px solid #003366;">
+            </div>
+            <div style="flex: 1;">
+              <p><strong>Name:</strong> ${studentData.name}</p>
+              <p><strong>ID Number:</strong> ${studentData.studentId}</p>
+              <p><strong>Major:</strong> ${studentData.major}</p>
+              <p><strong>Classification:</strong> ${studentData.classification}</p>
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin: 20px 0;">
+            <img src="https://barcode.tec-it.com/barcode.ashx?data=${studentData.studentId}&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&width=&height=50&minwidth=2" 
+                 alt="Student ID Barcode" 
+                 style="max-width: 100%; height: auto;">
+          </div>
+          
+          <div style="text-align: center; color: #666; font-size: 0.9em;">
+            <p>Valid through: 2024-2025</p>
+          </div>
+        </div>
+        
+        <p style="color: #666; font-size: 0.9em; text-align: center;">
+          This is an official document. Please keep it safe and present it when required.
+        </p>
+      </div>
+    `,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log('ID card email sent successfully to:', email);
+    res.status(200).json({ 
+      message: "ID card sent successfully!"
+    });
+  } catch (error) {
+    console.error('Error sending ID card:', error);
+    if (error.response) {
+      res.status(500).json({ 
+        error: "Failed to send ID card",
+        details: error.response.body.errors
+      });
+    } else {
+      res.status(500).json({ 
+        error: "Failed to send ID card",
+        details: error.message
+      });
+    }
+  }
+});
+
 app.get("/test", (req, res) => {
   res.json({ message: "Server is running!" });
 });
