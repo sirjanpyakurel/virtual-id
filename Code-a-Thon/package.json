@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "NODE_ENV=production vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "start": "NODE_ENV=production vite preview --host"
+    "start": "vite preview --host"
   },
   "dependencies": {
     "@mui/icons-material": "^6.4.8",
@@ -24,5 +24,8 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.0",
     "vite": "^4.0.0"
+  },
+  "engines": {
+    "node": "18.17.0"
   }
 }

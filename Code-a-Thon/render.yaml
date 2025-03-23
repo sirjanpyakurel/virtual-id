@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: virtual-id-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+    healthCheckPath: /
+    autoDeploy: true 
