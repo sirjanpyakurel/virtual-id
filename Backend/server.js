@@ -131,13 +131,7 @@ app.post("/send-id-card", async (req, res) => {
   try {
     let walletUrl = null;
     
-    // Log the environment variables (without sensitive data)
-    console.log('Checking Google Wallet credentials...');
-    console.log('GOOGLE_WALLET_ISSUER_ID:', process.env.GOOGLE_WALLET_ISSUER_ID ? 'Present' : 'Missing');
-    console.log('GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL ? 'Present' : 'Missing');
-    console.log('GOOGLE_WALLET_SERVICE_ACCOUNT:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT ? 'Present' : 'Missing');
-    
-    // Only try to create Google Wallet pass if credentials are available
+    // Try to create Google Wallet pass if credentials are available
     if (process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT) {
       try {
         console.log('Creating Google Wallet pass...');
@@ -149,13 +143,6 @@ app.post("/send-id-card", async (req, res) => {
         console.error('Error creating Google Wallet pass:', walletError);
         // Continue without Google Wallet integration
       }
-    } else {
-      console.log('Google Wallet credentials not found, skipping pass creation');
-      console.log('Missing credentials:', {
-        issuerId: !process.env.GOOGLE_WALLET_ISSUER_ID,
-        serviceAccountEmail: !process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,
-        serviceAccount: !process.env.GOOGLE_WALLET_SERVICE_ACCOUNT
-      });
     }
 
     const msg = {
@@ -192,17 +179,17 @@ app.post("/send-id-card", async (req, res) => {
             </div>
           </div>
           
-          ${walletUrl ? `
-            <div style="text-align: center; margin: 20px 0;">
-              <a href="${walletUrl}" 
-                 style="display: inline-block; 
-                        text-decoration: none;">
-                <img src="https://developers.google.com/static/wallet/images/passes/add-to-google-wallet-button.png" 
-                     alt="Add to Google Wallet" 
-                     style="height: 40px; width: auto;">
-              </a>
-            </div>
-          ` : ''}
+          <div style="text-align: center; margin: 20px 0;">
+            <a href="${walletUrl || '#'}" 
+               style="display: inline-block; 
+                      text-decoration: none;
+                      ${!walletUrl ? 'opacity: 0.5; pointer-events: none;' : ''}">
+              <img src="https://developers.google.com/static/wallet/images/passes/add-to-google-wallet-button.png" 
+                   alt="Add to Google Wallet" 
+                   style="height: 40px; width: auto;">
+              ${!walletUrl ? '<div style="color: #666; font-size: 0.8em; margin-top: 5px;">(Coming Soon)</div>' : ''}
+            </a>
+          </div>
           
           <p style="color: #666; font-size: 0.9em; text-align: center;">
             This is an official document. Please keep it safe and present it when required.
