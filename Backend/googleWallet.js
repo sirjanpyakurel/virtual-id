@@ -51,27 +51,16 @@ async function createPassClass() {
             cardTitle: {
               defaultValue: {
                 language: 'en-US',
-                value: 'Tennessee State University'
+                value: 'HIGH SCHOOL OF THE WEST'
               }
             },
             subheader: {
               defaultValue: {
                 language: 'en-US',
-                value: 'Student ID'
+                value: '2024/2025'
               }
             },
-            logo: {
-              sourceUri: {
-                uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
-              },
-              contentDescription: {
-                defaultValue: {
-                  language: 'en-US',
-                  value: 'TSU Logo'
-                }
-              }
-            },
-            hexBackgroundColor: '#003366'
+            hexBackgroundColor: '#4051B5'
           }
         };
 
@@ -113,7 +102,7 @@ async function createPassObject(student) {
       // If object doesn't exist (404), create it
       if (error.response?.status === 404) {
         // Generate a PNG avatar URL using UI Avatars
-        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=003366&color=fff&size=400&bold=true&format=png`;
+        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=ffffff&color=4051B5&size=400&bold=true&format=png`;
 
         const genericObject = {
           id: objectId,
@@ -122,24 +111,19 @@ async function createPassObject(student) {
           cardTitle: {
             defaultValue: {
               language: 'en-US',
-              value: 'Tennessee State University'
+              value: 'HIGH SCHOOL OF THE WEST'
             }
           },
           subheader: {
             defaultValue: {
               language: 'en-US',
-              value: 'Student ID'
+              value: '2024/2025'
             }
           },
           header: {
             defaultValue: {
               language: 'en-US',
-              value: student.name
-            }
-          },
-          logo: {
-            sourceUri: {
-              uri: 'https://virtual-id-frontend.onrender.com/tiger.png'
+              value: 'STUDENT ID'
             }
           },
           heroImage: {
@@ -153,29 +137,24 @@ async function createPassObject(student) {
               }
             }
           },
+          textModulesData: [
+            {
+              header: 'NAME',
+              body: student.name.toUpperCase(),
+              id: 'name'
+            },
+            {
+              header: 'STUDENT N°',
+              body: student.studentId,
+              id: 'student_id'
+            }
+          ],
           barcode: {
             type: 'CODE_128',
             value: student.studentId,
             alternateText: student.studentId
           },
-          hexBackgroundColor: '#003366',
-          textModulesData: [
-            {
-              header: 'Campus ID',
-              body: student.studentId,
-              id: 'student_id'
-            },
-            {
-              header: 'Name',
-              body: student.name,
-              id: 'name'
-            },
-            {
-              header: 'Major',
-              body: student.major,
-              id: 'major'
-            }
-          ],
+          hexBackgroundColor: '#FFFFFF',
           validTimeInterval: {
             start: {
               date: '2024-01-01T00:00:00Z'
