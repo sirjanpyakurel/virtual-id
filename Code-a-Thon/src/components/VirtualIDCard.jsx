@@ -22,7 +22,8 @@ const VirtualIDCard = ({ student, onReset }) => {
                         major: student.major,
                         classification: student.classification || 'Student',
                         imageUrl: imageUrl,
-                        barcodeUrl: `https://barcodeapi.org/api/128/${student.studentId}`
+                        barcodeUrl: `https://barcodeapi.org/api/128/${student.studentId}`,
+                        email: student.email // Add email to student data for Google Wallet
                     }
                 }),
             });
