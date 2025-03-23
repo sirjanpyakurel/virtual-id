@@ -6,8 +6,22 @@ const VirtualIDCard = ({ student, onReset }) => {
 
     const handleSendEmail = async () => {
         try {
-            // Get the image URL or generate avatar URL
-            const imageUrl = student.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=ffffff&color=4a148c&size=200`;
+            // Convert avatar URL to base64 if using UI Avatars
+            let imageData = student.imageUrl;
+            if (!student.imageUrl) {
+                const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=ffffff&color=4a148c&size=200`;
+                try {
+                    const response = await fetch(avatarUrl);
+                    const blob = await response.blob();
+                    imageData = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                } catch (error) {
+                    console.error('Error converting avatar to base64:', error);
+                }
+            }
 
             const response = await fetch('https://virtual-id-backend.onrender.com/send-id-card', {
                 method: 'POST',
@@ -20,7 +34,7 @@ const VirtualIDCard = ({ student, onReset }) => {
                         name: student.name,
                         studentId: student.studentId,
                         major: student.major,
-                        imageUrl: imageUrl,
+                        imageUrl: imageData,
                         barcodeUrl: `https://barcodeapi.org/api/128/${student.studentId}`
                     }
                 }),
@@ -89,10 +103,16 @@ const VirtualIDCard = ({ student, onReset }) => {
                 </div>
             </div>
             <div className="card-actions">
-                <button className="form-button send-email-button" onClick={handleSendEmail}>
+                <button 
+                    className="action-button send-email-btn"
+                    onClick={handleSendEmail}
+                >
                     Send to Email
                 </button>
-                <button className="form-button reset-button" onClick={onReset}>
+                <button 
+                    className="action-button start-over-btn"
+                    onClick={onReset}
+                >
                     Start Over
                 </button>
             </div>
