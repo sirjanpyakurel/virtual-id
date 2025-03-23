@@ -1,6 +1,6 @@
-const { GoogleAuth } = require('google-auth-library');
-const jwt = require('jsonwebtoken');
-const path = require('path');
+import { GoogleAuth } from 'google-auth-library';
+import jwt from 'jsonwebtoken';
+import path from 'path';
 
 // Replace these with your actual credentials from Google Cloud Console
 const ISSUER_ID = '3388000000022321123'; // Your Google Wallet issuer ID
@@ -93,11 +93,11 @@ const createStudentPass = async (student) => {
 
 // Generate signed JWT for the pass
 const generatePassJwt = async (student) => {
-  const serviceAccount = require(SERVICE_ACCOUNT_JSON_PATH);
+  const serviceAccount = await import(SERVICE_ACCOUNT_JSON_PATH, { assert: { type: 'json' } });
   const passObject = await createStudentPass(student);
   
   const claims = {
-    iss: serviceAccount.client_email,
+    iss: serviceAccount.default.client_email,
     aud: 'google',
     origins: ['https://virtual-id-backend.onrender.com'], // Update with your backend domain
     typ: 'savetowallet',
@@ -106,7 +106,7 @@ const generatePassJwt = async (student) => {
     }
   };
 
-  const token = jwt.sign(claims, serviceAccount.private_key, {
+  const token = jwt.sign(claims, serviceAccount.default.private_key, {
     algorithm: 'RS256',
     expiresIn: '1h'
   });
@@ -115,11 +115,7 @@ const generatePassJwt = async (student) => {
 };
 
 // Generate save to wallet URL
-const generateSaveUrl = async (student) => {
+export const generateSaveUrl = async (student) => {
   const token = await generatePassJwt(student);
   return `https://pay.google.com/gp/v/save/${token}`;
-};
-
-module.exports = {
-  generateSaveUrl
 }; 
