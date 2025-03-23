@@ -116,16 +116,25 @@ app.post("/send-id-card", async (req, res) => {
   try {
     let walletUrl = null;
     
+    // Log the environment variables (without sensitive data)
+    console.log('Checking Google Wallet credentials...');
+    console.log('GOOGLE_WALLET_ISSUER_ID:', process.env.GOOGLE_WALLET_ISSUER_ID ? 'Present' : 'Missing');
+    console.log('GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL ? 'Present' : 'Missing');
+    
     // Only try to create Google Wallet pass if credentials are available
     if (process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL) {
       try {
+        console.log('Creating Google Wallet pass...');
         await createPassClass();
         await createPassObject(studentData);
         walletUrl = generateSaveUrl(studentData);
+        console.log('Google Wallet pass created successfully');
       } catch (walletError) {
         console.error('Error creating Google Wallet pass:', walletError);
         // Continue without Google Wallet integration
       }
+    } else {
+      console.log('Google Wallet credentials not found, skipping pass creation');
     }
 
     const msg = {
