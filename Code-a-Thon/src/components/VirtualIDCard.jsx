@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import tigerLogo from "../assets/tiger.png";
-import { toast } from 'react-hot-toast';
 
 const VirtualIDCard = ({ student, onReset, onEmailSent }) => {
     const [loading, setLoading] = useState(false);
@@ -34,14 +33,10 @@ const VirtualIDCard = ({ student, onReset, onEmailSent }) => {
             if (response.ok) {
                 onEmailSent(); // Trigger email sent state and redirection
             } else {
-                toast.error(`Failed to send ID card: ${data.error}`);
-                if (data.details) {
-                    console.error('Error details:', data.details);
-                }
+                console.error('Error details:', data.details);
             }
         } catch (error) {
             console.error('Error sending ID card:', error);
-            toast.error('Failed to send ID card. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -78,7 +73,7 @@ const VirtualIDCard = ({ student, onReset, onEmailSent }) => {
                                 <span>{student.name}</span>
                             </div>
                             <div className="info-item">
-                                <label>Campus ID</label>
+                                <label>Student N°</label>
                                 <span>{student.studentId}</span>
                             </div>
                             <div className="info-item">

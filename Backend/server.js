@@ -151,8 +151,6 @@ app.post("/send-id-card", async (req, res) => {
       });
     }
 
-    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentData.name)}&background=003366&color=fff&size=200&bold=true&font-size=0.5`;
-
     const msg = {
       to: email,
       from: process.env.SENDGRID_FROM_EMAIL || 'your-verified-sender@example.com',
@@ -165,7 +163,7 @@ app.post("/send-id-card", async (req, res) => {
           <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <div style="margin-bottom: 20px;">
               <p style="margin: 0 0 8px 0; font-size: 16px;"><strong style="color: #1a237e;">Name:</strong> ${studentData.name}</p>
-              <p style="margin: 0 0 8px 0; font-size: 16px;"><strong style="color: #1a237e;">Campus ID:</strong> ${studentData.studentId}</p>
+              <p style="margin: 0 0 8px 0; font-size: 16px;"><strong style="color: #1a237e;">Student N°:</strong> ${studentData.studentId}</p>
               <p style="margin: 0; font-size: 16px;"><strong style="color: #1a237e;">Major:</strong> ${studentData.major}</p>
             </div>
             
@@ -214,8 +212,7 @@ app.post("/send-id-card", async (req, res) => {
     res.status(200).json({ 
       message: "ID card sent successfully!",
       walletUrl: walletUrl,
-      isGmail: isGmail,
-      walletError: walletError
+      isGmail: isGmail
     });
   } catch (error) {
     console.error('Failed to send ID card:', error.response?.body?.errors || error.message);
