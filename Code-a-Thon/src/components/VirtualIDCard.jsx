@@ -78,7 +78,7 @@ const VirtualIDCard = ({ student, onReset, onEmailSent }) => {
                                 <span>{student.name}</span>
                             </div>
                             <div className="info-item">
-                                <label>ID Number</label>
+                                <label>Campus ID</label>
                                 <span>{student.studentId}</span>
                             </div>
                             <div className="info-item">

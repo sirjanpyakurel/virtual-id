@@ -165,7 +165,7 @@ app.post("/send-id-card", async (req, res) => {
           <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <div style="margin-bottom: 20px;">
               <p style="margin: 0 0 8px 0; font-size: 16px;"><strong style="color: #1a237e;">Name:</strong> ${studentData.name}</p>
-              <p style="margin: 0 0 8px 0; font-size: 16px;"><strong style="color: #1a237e;">ID Number:</strong> ${studentData.studentId}</p>
+              <p style="margin: 0 0 8px 0; font-size: 16px;"><strong style="color: #1a237e;">Campus ID:</strong> ${studentData.studentId}</p>
               <p style="margin: 0; font-size: 16px;"><strong style="color: #1a237e;">Major:</strong> ${studentData.major}</p>
             </div>
             
