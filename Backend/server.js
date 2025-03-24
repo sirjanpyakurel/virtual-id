@@ -159,21 +159,14 @@ app.post("/send-id-card", async (req, res) => {
       subject: 'Your Tennessee State University ID Card',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #003366; text-align: center;">Tennessee State University</h2>
-          <h3 style="color: #003366; text-align: center;">Student ID Card</h3>
+          <h2 style="color: #1a237e; text-align: center;">Tennessee State University</h2>
+          <h3 style="color: #1a237e; text-align: center;">Student ID Card</h3>
           
           <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-              <div style="flex: 0 0 100px;">
-                <img src="${avatarUrl}" 
-                     alt="${studentData.name}" 
-                     style="width: 100%; height: 100px; border-radius: 5px; border: 2px solid #003366; object-fit: cover; background-color: #003366;">
-              </div>
-              <div style="flex: 1;">
-                <p style="margin: 0 0 8px 0; font-size: 16px;"><strong style="color: #003366;">Name:</strong> ${studentData.name}</p>
-                <p style="margin: 0 0 8px 0; font-size: 16px;"><strong style="color: #003366;">ID Number:</strong> ${studentData.studentId}</p>
-                <p style="margin: 0; font-size: 16px;"><strong style="color: #003366;">Major:</strong> ${studentData.major}</p>
-              </div>
+            <div style="margin-bottom: 20px;">
+              <p style="margin: 0 0 8px 0; font-size: 16px;"><strong style="color: #1a237e;">Name:</strong> ${studentData.name}</p>
+              <p style="margin: 0 0 8px 0; font-size: 16px;"><strong style="color: #1a237e;">ID Number:</strong> ${studentData.studentId}</p>
+              <p style="margin: 0; font-size: 16px;"><strong style="color: #1a237e;">Major:</strong> ${studentData.major}</p>
             </div>
             
             <div style="text-align: center; margin: 20px 0; padding: 10px; background: white; border-radius: 5px;">
@@ -188,28 +181,29 @@ app.post("/send-id-card", async (req, res) => {
           </div>
           
           <div style="text-align: center; margin: 20px 0;">
-            <a href="${walletUrl || '#'}" 
-               style="display: inline-block; 
-                      text-decoration: none;
-                      background-color: ${walletUrl ? '#4285f4' : '#9e9e9e'};
-                      color: white;
-                      padding: 12px 24px;
-                      border-radius: 8px;
-                      font-weight: 500;
-                      font-size: 16px;
-                      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                      transition: all 0.3s ease;
-                      ${!walletUrl ? 'cursor: not-allowed; opacity: 0.8;' : ''}">
-              Add to Wallet
-            </a>
+            ${walletUrl ? `
+              <a href="${walletUrl}" 
+                 style="display: inline-block; 
+                        text-decoration: none;
+                        background-color: #4285f4;
+                        color: white;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-weight: 500;
+                        font-size: 16px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        transition: all 0.3s ease;">
+                Add to Google Wallet
+              </a>
+            ` : ''}
             ${!isGmail ? `
               <p style="color: #666; font-style: italic; margin-top: 8px; font-size: 0.9em;">
-                Note: Wallet feature requires a Gmail account
+                Note: Google Wallet feature requires a Gmail account
               </p>
             ` : ''}
           </div>
           
-          <p style="color: #666; font-size: 0.9em; text-align: center;">
+          <p style="color: #666; font-size: 0.9em; text-align: center; margin-top: 20px;">
             This is an official document. Please keep it safe and present it when required.
           </p>
         </div>

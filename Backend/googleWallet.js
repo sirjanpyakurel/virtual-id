@@ -117,18 +117,10 @@ async function createPassObject(studentData) {
     const objectId = `${ISSUER_ID}.student_id_${studentData.studentId}`;
     const classId = `${ISSUER_ID}.student_id_class`;
 
-    // Generate a high-quality avatar URL with correct dimensions
-    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentData.name)}&background=ffffff&color=4051B5&size=336&bold=true&format=png`;
-
     const objectTemplate = {
       id: objectId,
       classId: classId,
       state: 'ACTIVE',
-      logo: {
-        sourceUri: {
-          uri: 'https://www.tnstate.edu/images/header-logo.png'
-        }
-      },
       cardTitle: {
         kind: 'walletobjects#localizedString',
         defaultValue: {
@@ -151,12 +143,6 @@ async function createPassObject(studentData) {
           kind: 'walletobjects#translatedString',
           language: 'en',
           value: 'Student ID'
-        }
-      },
-      heroImage: {
-        sourceUri: {
-          uri: studentData.imageUrl || avatarUrl,
-          description: 'Student Photo'
         }
       },
       textModulesData: [
