@@ -30,155 +30,188 @@ try {
 async function createPassClass() {
   try {
     const client = await auth.getClient();
-    console.log('Checking if pass class exists...');
-
-    // First try to get the existing class
-    try {
-      const response = await client.request({
-        url: `https://walletobjects.googleapis.com/walletobjects/v1/genericClass/${ISSUER_ID}.student_id_class`,
-        method: 'GET'
-      });
-      console.log('Pass class already exists');
-      return response.data;
-    } catch (error) {
-      // If class doesn't exist (404), create it
-      if (error.response?.status === 404) {
-        console.log('Pass class not found, creating new class...');
-        
-        const genericClass = {
-          id: `${ISSUER_ID}.student_id_class`,
-          classTemplate: {
-            cardTitle: {
-              defaultValue: {
-                language: 'en-US',
-                value: 'HIGH SCHOOL OF THE WEST'
-              }
-            },
-            subheader: {
-              defaultValue: {
-                language: 'en-US',
-                value: '2024/2025'
-              }
-            },
-            hexBackgroundColor: '#4051B5'
+    const classId = `${ISSUER_ID}.student_id_class`;
+    
+    console.log('Creating/Updating pass class...');
+    
+    // Define the class template according to Google Wallet guidelines
+    const classTemplate = {
+      id: classId,
+      issuerName: 'Tennessee State University',
+      reviewStatus: 'UNDER_REVIEW',
+      classTemplateInfo: {
+        cardTitle: {
+          defaultValue: {
+            language: 'en',
+            value: 'Tennessee State University'
           }
-        };
+        },
+        subheader: {
+          defaultValue: {
+            language: 'en',
+            value: 'Student ID Card'
+          }
+        },
+        logo: {
+          sourceUri: {
+            uri: 'https://www.tnstate.edu/images/header-logo.png'
+          },
+          contentDescription: {
+            defaultValue: {
+              language: 'en',
+              value: 'TSU Logo'
+            }
+          }
+        },
+        hexBackgroundColor: '#4051B5',
+        textModulesData: [
+          {
+            id: 'STUDENT_STATUS',
+            header: 'Status',
+            body: 'Active Student'
+          },
+          {
+            id: 'ACADEMIC_YEAR',
+            header: 'Academic Year',
+            body: '2024/2025'
+          }
+        ]
+      }
+    };
 
-        const response = await client.request({
+    try {
+      // Try to update existing class first
+      await client.request({
+        url: `https://walletobjects.googleapis.com/walletobjects/v1/genericClass/${classId}`,
+        method: 'PUT',
+        data: classTemplate
+      });
+      console.log('Pass class updated successfully');
+    } catch (error) {
+      if (error.response?.status === 404) {
+        // If class doesn't exist, create it
+        await client.request({
           url: 'https://walletobjects.googleapis.com/walletobjects/v1/genericClass',
           method: 'POST',
-          data: genericClass
+          data: classTemplate
         });
         console.log('Pass class created successfully');
-        return response.data;
       } else {
-        // If it's not a 404 error, throw the error
         throw error;
       }
     }
+    
+    return classTemplate;
   } catch (error) {
-    console.error('Error with pass class:', error.response?.data || error.message);
+    console.error('Error creating/updating pass class:', error.response?.data || error.message);
     throw error;
   }
 }
 
 // Create a Generic pass object for a specific student
-async function createPassObject(student) {
+async function createPassObject(studentData) {
   try {
     const client = await auth.getClient();
     console.log('Creating pass object...');
 
-    const objectId = `${ISSUER_ID}.student_id_${student.studentId}`;
-    
-    // First check if the object already exists
+    const objectId = `${ISSUER_ID}.student_id_${studentData.studentId}`;
+    const classId = `${ISSUER_ID}.student_id_class`;
+
+    // Generate a high-quality avatar URL with correct dimensions
+    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentData.name)}&background=ffffff&color=4051B5&size=336&bold=true&format=png`;
+
+    const objectTemplate = {
+      id: objectId,
+      classId: classId,
+      state: 'ACTIVE',
+      logo: {
+        sourceUri: {
+          uri: 'https://www.tnstate.edu/images/header-logo.png'
+        }
+      },
+      cardTitle: {
+        kind: 'walletobjects#localizedString',
+        defaultValue: {
+          kind: 'walletobjects#translatedString',
+          language: 'en',
+          value: 'Tennessee State University'
+        }
+      },
+      subheader: {
+        kind: 'walletobjects#localizedString',
+        defaultValue: {
+          kind: 'walletobjects#translatedString',
+          language: 'en',
+          value: studentData.name.toUpperCase()
+        }
+      },
+      header: {
+        kind: 'walletobjects#localizedString',
+        defaultValue: {
+          kind: 'walletobjects#translatedString',
+          language: 'en',
+          value: 'Student ID'
+        }
+      },
+      heroImage: {
+        sourceUri: {
+          uri: studentData.imageUrl || avatarUrl,
+          description: 'Student Photo'
+        }
+      },
+      textModulesData: [
+        {
+          id: 'STUDENT_INFO',
+          header: 'Student Information',
+          body: `Name: ${studentData.name.toUpperCase()}\nStudent N°: ${studentData.studentId}\nMajor: ${studentData.major}\nClassification: ${studentData.classification}`
+        },
+        {
+          id: 'STUDENT_STATUS',
+          header: 'Status',
+          body: 'Active Student'
+        }
+      ],
+      barcode: {
+        type: 'CODE_128',
+        value: studentData.studentId,
+        alternateText: studentData.studentId
+      },
+      hexBackgroundColor: '#4051B5',
+      validTimeInterval: {
+        start: {
+          date: '2024-01-01T00:00:00Z'
+        },
+        end: {
+          date: '2025-12-31T23:59:59Z'
+        }
+      }
+    };
+
     try {
-      const existingObject = await client.request({
+      // Try to update existing object first
+      await client.request({
         url: `https://walletobjects.googleapis.com/walletobjects/v1/genericObject/${objectId}`,
-        method: 'GET'
+        method: 'PUT',
+        data: objectTemplate
       });
-      console.log('Pass object already exists');
-      return existingObject.data;
+      console.log('Pass object updated successfully');
     } catch (error) {
-      // If object doesn't exist (404), create it
       if (error.response?.status === 404) {
-        // Generate a PNG avatar URL using UI Avatars
-        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=ffffff&color=4051B5&size=400&bold=true&format=png`;
-
-        const genericObject = {
-          id: objectId,
-          classId: `${ISSUER_ID}.student_id_class`,
-          genericType: 'GENERIC_TYPE_UNSPECIFIED',
-          cardTitle: {
-            defaultValue: {
-              language: 'en-US',
-              value: 'HIGH SCHOOL OF THE WEST'
-            }
-          },
-          subheader: {
-            defaultValue: {
-              language: 'en-US',
-              value: '2024/2025'
-            }
-          },
-          header: {
-            defaultValue: {
-              language: 'en-US',
-              value: 'STUDENT ID'
-            }
-          },
-          heroImage: {
-            sourceUri: {
-              uri: avatarUrl
-            },
-            contentDescription: {
-              defaultValue: {
-                language: 'en-US',
-                value: 'Student Photo'
-              }
-            }
-          },
-          textModulesData: [
-            {
-              header: 'NAME',
-              body: student.name.toUpperCase(),
-              id: 'name'
-            },
-            {
-              header: 'STUDENT N°',
-              body: student.studentId,
-              id: 'student_id'
-            }
-          ],
-          barcode: {
-            type: 'CODE_128',
-            value: student.studentId,
-            alternateText: student.studentId
-          },
-          hexBackgroundColor: '#FFFFFF',
-          validTimeInterval: {
-            start: {
-              date: '2024-01-01T00:00:00Z'
-            },
-            end: {
-              date: '2025-12-31T23:59:59Z'
-            }
-          }
-        };
-
-        const response = await client.request({
+        // If object doesn't exist, create it
+        await client.request({
           url: 'https://walletobjects.googleapis.com/walletobjects/v1/genericObject',
           method: 'POST',
-          data: genericObject
+          data: objectTemplate
         });
         console.log('Pass object created successfully');
-        return response.data;
       } else {
-        // If it's not a 404 error, throw the error
         throw error;
       }
     }
+
+    return objectTemplate;
   } catch (error) {
-    console.error('Error creating pass object:', error.response?.data || error.message);
+    console.error('Error creating/updating pass object:', error.response?.data || error.message);
     throw error;
   }
 }
