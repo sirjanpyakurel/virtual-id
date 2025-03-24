@@ -1,5 +1,3 @@
-import yourPhoto from '../assets/sirjan.jpg'; // Update this with your actual photo filename
-
 export const students = [
     {
         name: "John Smith",
@@ -137,12 +135,12 @@ export const students = [
         imageUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Daniel"
     },
     {
-        name: "Sirjan Pyakurel", // Replace with your name
-        studentId: "T00770283", // Replace with your actual student ID
-        email: "spyakure@my.tnstate.edu", // Replace with your email
-        major: "Computer Science", // Replace with your major
-        classification: "Junior", // Replace with your classification
-        imageUrl: yourPhoto // This will use your local photo
+        name: "Sirjan Pyakurel",
+        studentId: "T00770283",
+        email: "spyakure@my.tnstate.edu",
+        major: "Computer Science",
+        classification: "Junior",
+        imageUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sirjan"
     },
     {
         name: "John Smith",
