@@ -608,8 +608,6 @@ body{
 }
 
 .confirmation-buttons button {
-    flex: 1;
-    max-width: 200px;
     padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 8px;
@@ -617,24 +615,31 @@ body{
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    width: 200px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .confirm-button {
-    background-color: #28a745;
+    background-color: #4051B5;
     color: white;
 }
 
 .confirm-button:hover {
-    background-color: #218838;
+    background-color: #303f9f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .deny-button {
-    background-color: #dc3545;
+    background-color: #f44336;
     color: white;
 }
 
 .deny-button:hover {
-    background-color: #c82333;
+    background-color: #d32f2f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 @media screen and (max-width: 768px) {
@@ -650,12 +655,14 @@ body{
 
     .confirmation-buttons {
         flex-direction: column;
-        gap: 0.75rem;
-        padding: 0;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
     }
 
     .confirmation-buttons button {
-        max-width: 100%;
+        width: 100%;
+        max-width: 300px;
     }
 }
 
@@ -681,6 +688,11 @@ body{
 
     .info-row span {
         font-size: 0.9rem;
+    }
+
+    .confirmation-buttons button {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
     }
 }
 

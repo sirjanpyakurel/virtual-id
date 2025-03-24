@@ -14,9 +14,9 @@ const Form = () => {
     const [student, setStudent] = useState(null);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [isValidated, setIsValidated] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [isInfoConfirmed, setIsInfoConfirmed] = useState(false);
+    const [emailSent, setEmailSent] = useState(false);
 
     const findStudent = (email, campusId) => {
         return students.find(s => 
@@ -34,7 +34,6 @@ const Form = () => {
             if (!showOtpInput) {
                 const foundStudent = findStudent(formData.email, formData.campusId);
                 if (foundStudent) {
-                    // Send OTP via SendGrid
                     const apiUrl = process.env.NODE_ENV === 'production' 
                         ? 'https://virtual-id-backend.onrender.com' 
                         : 'http://localhost:5002';
@@ -55,7 +54,6 @@ const Form = () => {
                     setError('Student not found. Please check your email and campus ID.');
                 }
             } else {
-                // Verify OTP
                 if (!otp || otp.length !== 6) {
                     throw new Error('Please enter a valid 6-digit OTP');
                 }
@@ -78,14 +76,7 @@ const Form = () => {
                     throw new Error(data.error || 'Invalid OTP');
                 }
 
-                // Double check the response
-                if (data.message !== "OTP verified successfully") {
-                    throw new Error('Invalid OTP verification response');
-                }
-
-                // Only proceed if we have both successful verification and valid student data
-                if (student && data.message === "OTP verified successfully") {
-                    setIsValidated(true);
+                if (data.message === "OTP verified successfully" && student) {
                     setShowConfirmation(true);
                 } else {
                     throw new Error('Verification failed. Please try again.');
@@ -95,7 +86,6 @@ const Form = () => {
             console.error('Error in handleSubmit:', err);
             setError(err.message);
             if (err.message.includes('expired') || err.message.includes('No OTP found')) {
-                // Reset OTP input and allow requesting new OTP
                 setOtp('');
                 setShowOtpInput(false);
             }
@@ -105,17 +95,14 @@ const Form = () => {
     };
 
     const handleReset = () => {
-        setFormData({
-            email: '',
-            campusId: ''
-        });
+        setFormData({ email: '', campusId: '' });
         setShowOtpInput(false);
         setOtp('');
         setStudent(null);
         setError('');
-        setIsValidated(false);
         setShowConfirmation(false);
         setIsInfoConfirmed(false);
+        setEmailSent(false);
     };
 
     const handleConfirmation = (isCorrect) => {
@@ -125,6 +112,13 @@ const Form = () => {
             setError('Your information appears to be incorrect. Please visit the Administration Office (Room 105, Student Center) to update your records.');
             setShowConfirmation(false);
         }
+    };
+
+    const handleEmailSent = () => {
+        setEmailSent(true);
+        setTimeout(() => {
+            handleReset();
+        }, 3000);
     };
 
     const renderStudentInfo = () => (
@@ -155,13 +149,13 @@ const Form = () => {
             <div className="confirmation-buttons">
                 <button 
                     onClick={() => handleConfirmation(true)} 
-                    className="form-button confirm-button"
+                    className="confirm-button"
                 >
                     Yes, Information is Correct
                 </button>
                 <button 
                     onClick={() => handleConfirmation(false)} 
-                    className="form-button deny-button"
+                    className="deny-button"
                 >
                     No, Information is Incorrect
                 </button>
@@ -221,8 +215,20 @@ const Form = () => {
                             renderStudentInfo()
                         ) : (
                             <>
-                                <div className="success-message">Information verified successfully!</div>
-                                <VirtualIDCard student={student} onReset={handleReset} />
+                                {emailSent ? (
+                                    <div className="success-message">
+                                        Email sent successfully! Redirecting...
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="success-message">Information verified successfully!</div>
+                                        <VirtualIDCard 
+                                            student={student} 
+                                            onReset={handleReset}
+                                            onEmailSent={handleEmailSent}
+                                        />
+                                    </>
+                                )}
                             </>
                         )}
                     </div>

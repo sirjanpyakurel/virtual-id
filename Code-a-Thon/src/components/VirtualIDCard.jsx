@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import tigerLogo from "../assets/tiger.png";
 import { toast } from 'react-hot-toast';
 
-const VirtualIDCard = ({ student, onReset }) => {
+const VirtualIDCard = ({ student, onReset, onEmailSent }) => {
     const [loading, setLoading] = useState(false);
 
     if (!student) return null;
@@ -32,19 +32,11 @@ const VirtualIDCard = ({ student, onReset }) => {
             const data = await response.json();
             
             if (response.ok) {
-                toast.success('ID card sent successfully!');
-                if (data.walletMessage) {
-                    toast.info(data.walletMessage);
-                }
-                // Wait for 2 seconds to show the success message before redirecting
-                setTimeout(() => {
-                    onReset(); // Reset the form and redirect to first page
-                }, 2000);
+                onEmailSent(); // Trigger email sent state and redirection
             } else {
                 toast.error(`Failed to send ID card: ${data.error}`);
                 if (data.details) {
                     console.error('Error details:', data.details);
-                    toast.error(`Error details: ${JSON.stringify(data.details)}`);
                 }
             }
         } catch (error) {
